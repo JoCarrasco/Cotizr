@@ -1,0 +1,61 @@
+$mobile: 20em; 
+$lmobile: 26.25em;
+$tablet: 48em;
+$laptop: 64em;
+$desktop: 90em;
+$ldesktop: 120em;
+
+@mixin container {
+  @content;
+  padding: 1em 2em;
+}
+
+@mixin mobile {
+  @media (min-width: #{$mobile}) and (max-width: #{$tablet}) {
+    @content;
+  }
+}
+
+@mixin lmobile {
+  @media (min-width: #{$lmobile}) and (max-width: #{$tablet}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$tablet}) {
+    @content;
+  }
+}
+
+@mixin background-center {
+  background-position: center;
+  background-size: cover;
+}
+
+@mixin laptop {
+  @media (min-width: #{$laptop}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop}) {
+    @content;
+  }
+}
+
+@mixin device-width {
+  width: 100vw;
+  height: 100vh;
+}
+
+@mixin ldesktop {
+  @media (min-width: #{$ldesktop}) {
+    @content;
+  }
+}
+
+@mixin page-margin-normal {
+  padding: 3em 1.5em 1.5em 1.5em; 
+}

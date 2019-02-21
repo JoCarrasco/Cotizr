@@ -1,0 +1,106 @@
+<div class="step">
+	<div class="row w-100">
+		<div class="col-12 col-md-4">
+			<div class="img-wrapper">
+				<img src="./assets/img/quotation/step_1.png" class="img-fluid" alt="step_1">
+			</div>
+		</div>
+		<div class="col-12 col-md-8 d-flex align-items-center justify-content-end">
+			<div class="step-button align-self-center">
+				<button type="button" class="btn btn-primary btn-material" [routerLink]="['../generate-data']">Siguiente Paso <i class="fas fa-long-arrow-alt-right"></i></button>
+			</div>
+		</div>
+	</div>
+</div>
+<div>
+	<div class="quotation-info">
+		<p>Cantidad de Productos: {{ quotation.quotationState.quotationItems.length }}</p>
+		<p>SubTotal: {{ quotation.getQuotationTotal(false) | shortDecimal | groupSeparator }} Bs.S</p>
+		<p>IVA(16%): {{  quotation.getQuotationTotal(true) - quotation.getQuotationTotal(false) | shortDecimal | groupSeparator }} Bs.S</p>
+		<p>Total: {{ quotation.getQuotationTotal(true) | shortDecimal | groupSeparator }} Bs.S</p>	
+	</div>
+</div>
+<div class="step-body">
+	<div class="row">
+		<div class="col-sm-5 col-md-5 col-lg-4 search" [ngClass]="{'search-deactive': listState.isActive }">
+			<div class="searchbar">
+				<input type="text" placeholder="Buscar por ID o palabra clave" #query (change)="quotation.searchProduct(query)"><i class="fas fa-search" (click)="quotation.searchProduct(query)"></i>
+			  <button type="submit" style="display:none">hidden submit</button>
+			</div>
+			<app-loading *ngIf="quotation.quotationState.isLoading && quotation.quotationState.searchType == 'product'"></app-loading>
+			<div class="list" *ngIf="quotation.quotationState.searchedProducts | async">
+				<div class="item" *ngFor="let item of quotation.quotationState.searchedProducts | async">
+					<div class="item-img">
+						<div [ngStyle]="{'background-image': 'url(https://officenet.net.ve/api/images/products/'+item.id+'/'+item.id_default_image+'/medium_default?ws_key=KFFHJS6IYEINF34856EN35GINGMGNK25)'}" class="img">
+							<div class="ammount" *ngIf="quotation.checkExistence(item) || quotation.checkAmmount(item) != 0">
+								<span>{{ quotation.checkAmmount(item) }}</span>
+							</div>
+						</div>
+					</div>
+					<div class="item-info">
+						<span class="name">{{ item.name }}</span>
+						<span class="price">{{ item.price | shortDecimal | groupSeparator }} Bs.S</span>
+					</div>
+					<div class="buttons">
+						<i class="far fa-plus-square" (click)="quotation.quotateItem(item)"></i>
+					</div>
+				</div>
+			</div>	
+		</div>
+		<div class="col-sm-7 col-md-7 col-lg-8">
+			<div class="quotation-table d-none d-lg-block" >
+				<div class="table-head">
+					<span class="id">ID</span>
+					<span class="description">Descripción</span>
+					<span class="ammount">Cantidad</span>
+					<span class="price">Precio</span>
+					<span class="total">Total</span>
+					<span></span>
+				</div>
+				<div class="table-body">
+					<div class="table-item" *ngFor="let item of quotation.quotationState.quotationItems">
+						<span class="id">{{ item.id }}</span>
+						<span class="description">{{ item.name }}</span>
+						<span class="ammount"><input type="number" value="{{ item.ammount }}" #input (keyup)="item.ammount = input.value" (change)="item.ammount = input.value"></span>
+						<span class="price">{{ item.price | shortDecimal | groupSeparator }}</span>
+						<span class="total">{{ item.price * item.ammount | shortDecimal | groupSeparator }}</span>
+						<span class="trash">
+							<i class="fas fa-trash-alt" (click)="quotation.removeFromQuotation(item)"></i>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div class="product-list mobile-list d-none" [ngClass]="{'d-block': listState.isActive }">
+				<p>Productos</p>
+				<div class="col ">
+					<div class="row">
+						<div class="col-sm-12 material-card product-small mt-2" *ngFor="let item of quotation.quotationState.quotationItems">
+							<div class="product-info">
+								<p class="description"><span>Producto:</span> {{ item.name }}</p>
+								<p class="price"><span>Precio:</span> {{ item.price | shortDecimal | groupSeparator }} Bs.S</p>
+								<p class="total"><span>Total:</span> {{ item.price * item.ammount | shortDecimal | groupSeparator }} Bs.S</p>
+							</div>
+							<div class="actions">
+								<div class="remove btn-material">
+									<i class="fas fa-trash-alt" (click)="quotation.removeFromQuotation(item)"></i>
+								</div>
+								<div class="ammount">
+									<p>Cantidad</p>
+									<input type="number" value="{{ item.ammount }}" #input (keyup)="item.ammount = input.value" (change)="item.ammount = input.value">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="fab blue d-md-none" (click)="switchList()" *ngIf="!listState.isActive">
+	<i class="far fa-list-alt"></i>
+</div>
+
+<div class="fab blue d-md-none" (click)="switchList()" *ngIf="listState.isActive">
+	<i class="fas fa-archive"></i>
+</div>

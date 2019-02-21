@@ -1,0 +1,61 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~normalize.css/normalize.css';
+@import '~bootstrap/scss/bootstrap.scss';
+@import './assets/styles/core.scss';
+@import './assets/styles/utils.scss';
+@import './assets/styles/component-styles.scss';
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,900,900i');
+
+body {
+  font-family: 'Roboto', 'Helvetica', sans-serif;
+}
+
+/*LOGIN AND AUTH COMPONENTS*/
+.panel {
+  .forms {
+    display: flex;
+    flex-direction: column;
+  }
+  .range-wrapper {
+    @include laptop {
+      max-width: 200px;
+    }
+    .modes {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      span {
+        transition: all .2s;
+        font-weight: bolder;
+        color: $gray;
+        @include cursorPointer();
+        &.active {
+          color: $blue;
+          
+        }
+      }
+    }
+  }
+  .other {
+    text-align: center;
+    .forgot {
+      color:$dark-blue;
+      font-size: 14px;
+      span {
+        font-weight: bolder;
+        @include cursorPointer();
+      }
+    }
+  }
+}
+
+.featured-img {
+  background-image: url('./assets/img/components/bg_1.jpg');
+  background-position: center;
+  background-size:cover;
+  background-color: $blue;
+  background-blend-mode: soft-light;
+  @include laptop {
+    min-height: 100vh;
+  }
+}

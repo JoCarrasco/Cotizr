@@ -1,0 +1,31 @@
+@import '../../../../assets/styles/core';
+@import '../../../../assets/styles/colors';
+
+.navbar {
+  .navbar-brand {
+    &:hover {
+      cursor: pointer;
+    }
+    img {
+      max-width: 150px;
+      @include ldesktop {
+        max-width: 200px;
+      }
+    }
+  }
+  .nav-item {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  .nav-link {
+    color: $white;
+    font-weight: bolder;
+     @include laptop {
+      font-size: $medium-font;
+    }
+    @include ldesktop {
+      font-size: $big-font;
+    }
+  }
+}

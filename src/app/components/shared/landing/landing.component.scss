@@ -1,0 +1,78 @@
+@import '../../../../assets/styles/colors';
+@import '../../../../assets/styles/core';
+@import '../../../../assets/styles/material';
+.animation-landscape {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quotation-mockup {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  background: $white;
+  border-radius: 2px;
+  box-shadow: $shadow-3;
+  .item-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 100%;
+    background: $light-gray;
+    @include mobile {
+      width: 25px;
+      height: 25px;
+    }
+  }
+  .quotation-info {
+    display: flex;
+    flex-direction: column;
+    .line-1 {
+      width: 200px;
+      height: 10px;
+      background: $light-gray;
+    }
+    .line-2 {
+      width: 150px;
+      height: 10px;
+      background: $light-gray;
+    }
+  }
+  .price {
+    color: $light-gray;
+    font-weight: bolder;
+  }
+}
+
+.slogan {
+  font-size: 30px;
+  max-width: 750px;
+  font-family: 'Roboto', sans-serif;
+  color:$white;
+  margin: 5rem 0 0 0;
+  @include mobile {
+    font-size: 25px;
+  }
+  @include ldesktop {
+    font-size: 45px;
+    margin: 10rem 0 0 0;
+  }
+  span {
+    font-weight: bolder;
+  }
+}
+
+.ill {
+  max-width: 450px;
+  position: fixed;
+  bottom: -5px;
+  right:3rem;
+  @include mobile {
+    max-width: 250px;
+    right:1rem;
+  }
+   @include laptop {
+    max-width: 350px;
+    right:1rem;
+  }
+}

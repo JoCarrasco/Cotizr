@@ -1,0 +1,23 @@
+@import 'material';
+@import 'colors';
+@mixin cursorPointer() {
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.material-card {
+  padding: 5px 10px;
+  box-shadow: $shadow-2;
+  border-radius: 2px;
+}
+
+.white-nowrap {
+  white-space: nowrap;
+}
+
+.log {
+  text-align: center;
+  color: $darker-blue;
+  padding: 1rem;
+}

@@ -1,0 +1,73 @@
+@import '../../../../assets/styles/colors';
+@import '../../../../assets/styles/animations';
+@import '../../../../assets/styles/core';
+@import '../../../../assets/styles/material';
+:host {
+  z-index: 1051;
+  position: fixed
+}
+.toast {
+  display: flex;
+  align-items: center;
+  position: fixed;
+  background: $white;
+  pointer-events: none;
+  opacity: 0;
+  transition: all .4s;
+  color: $dark-blue;
+  padding:.5rem 1rem;
+  width: 462px;
+  box-shadow: $shadow-3;
+  @include mobile {
+    bottom: 1rem;
+    right: 1rem;
+    width: calc(100vw - 28px);
+    font-size: 13px;
+    &.active {
+      opacity: 1;
+      pointer-events: auto;
+      right: 1rem;
+    }
+  }
+  @include laptop {
+    width: 300px;
+    bottom: 1rem;
+    right: -6rem;
+    &.active {
+      opacity: 1;
+      pointer-events: auto;
+      right: 1rem;
+    }
+  }
+  &.error {
+    background: $red;
+    color:#fff;
+    
+    @include laptop {
+      max-width: unset;
+      bottom: 1rem;
+      right: -6rem;
+      &.active {
+        opacity: 1;
+        pointer-events: auto;
+        right: 1rem;
+      }
+    }
+    .message {
+      display: flex;
+      align-items: center;
+    }
+  }
+  &.process {
+    background: green;
+    color: $white;
+  }
+  .message {
+  i {
+    margin-right: 1rem;
+  }    
+    @include laptop {
+      margin: 0 0 0 1rem;
+    }
+  }
+}

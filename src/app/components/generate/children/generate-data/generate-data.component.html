@@ -1,0 +1,83 @@
+<div class="step">
+	<div class="col-12 w-100">
+		<div class="row">
+			<div class="col-12 col-md-4">
+				<div class="img-wrapper">
+					<img src="./assets/img/quotation/step_2.png" alt="step_2">
+				</div>
+			</div>
+			<div class="col-12 col-md-5 d-flex align-items-center justify-content-end">
+				<div class="step-button align-self-center">
+					<button type="button" class="btn btn-primary btn-material" [routerLink]="['../generate-products']"><i class="fas fa-long-arrow-alt-left"></i> Paso Anterior</button>
+					<button type="button" class="btn btn-primary btn-material" [routerLink]="['../generate-data']" (click)="checkAndSend()">Generar Cotización <i class="fas fa-long-arrow-alt-right"></i></button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="step-body">
+	<div class="row">
+		<div class="col-md-9">
+			<div class="forms">
+				<div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Nombre de Representante</label>
+			    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="userName" [(ngModel)]="quotation.quotationState.quotationInfo.userName">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Nombre de La Empresa</label>
+			    <input type="textare" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="companyName" [(ngModel)]="quotation.quotationState.quotationInfo.companyName">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Direccion de la Empresa</label>
+			    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="companyAddress" [(ngModel)]="quotation.quotationState.quotationInfo.companyAddress">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">RIF</label>
+			    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"  name="RIF" [(ngModel)]="quotation.quotationState.quotationInfo.RIF">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Cotización Hecha Por:</label>
+			    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="cotizer" [(ngModel)]="quotation.quotationState.quotationInfo.cotizer">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Teléfono</label>
+			    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="phoneNumber" [(ngModel)]="quotation.quotationState.quotationInfo.phoneNumber">
+			  </div>
+			</div>
+
+			
+		</div>
+		<div class="col-md-3 quotation-data p-4">
+<!-- 			<button type="button" class="btn btn-light btn-material" [ngClass]="{'deactive': quotation.quotationState.quotationInfo.phone != '' }"><i class="fas fa-file-invoice-dollar" ></i> Generar Cotización</button> -->
+			<button type="button" class="btn btn-light btn-material mt-2" data-toggle="modal" data-target="#exampleModalCenter"><i class="fas fa-mail-bulk"></i><div class="quantity" *ngIf="quotation.quotationState.quotationEmails.length > 0">{{ quotation.quotationState.quotationEmails.length }}</div>Agregar Emails</button>
+	<!-- 		<button type="button" class="btn btn-light btn-material mt-2" *ngIf="quotation.quotationState.quotationEmails.length > 0"><i class="fab fa-telegram-plane"></i> Enviar Cotización</button> -->
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Agrega Los Emails Destinatarios.</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="resetEmails(email)">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       	<div class="send-email-wrapper">
+					<div class="input-wrapper"> 
+					  <input type="email" class="email" (keyup)="quotation.checkEmail(true, $event)" placeholder="Ingresa tus emails">
+					  <i class="fas fa-plus" (click)="quotation.checkEmail(false, email)"></i>
+					</div>
+			    <div class="emails">
+			      <div *ngFor="let email of quotation.quotationState.quotationEmails" (click)="quotation.removeEmail(email)" class="email-destination">{{ email }}<i class="fas fa-times"></i></div>
+			    </div>
+				</div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-toast [toastType]="'process'" [color]="'white'" [process]="quotation.quotationState.sendQuotation"></app-toast>

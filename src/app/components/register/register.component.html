@@ -1,0 +1,44 @@
+<div class="wrapper ">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3 panel p-md-4">
+				<div class="navigation pb-4">
+					<div class="inner" [routerLink]="['/home']">
+						<i class="fas fa-long-arrow-alt-left"></i> 
+						<span>Volver a Inicio</span>
+					</div>
+				</div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Nombre y Apellido</label>
+			    <input type="text" class="form-control" id="registerName" aria-describedby="emailHelp" placeholder='Ej."Daniel Gonzales"' (keyup)="doKeyBoardRegister($event)"  name="name" [(ngModel)]="createUser.name">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Dirección</label>
+			    <input type="textare" class="form-control" id="registerAddress" aria-describedby="emailHelp" placeholder='Ej."Estado Yaracuy, Urb Los Castillos"' (keyup)="doKeyBoardRegister($event)" name="address" [(ngModel)]="createUser.address">
+			  </div>
+			  <div class="form-group mt-md-4">
+			    <label for="exampleInputEmail1">Correo Electronico</label>
+			    <input type="email" class="form-control" id="registerEmail" aria-describedby="emailHelp" placeholder='Ej."danielgonzales@example.com"' (keyup)="doKeyBoardRegister($event)" name="email" [(ngModel)]="createUser.email">
+			  </div>
+			  <div class="form-group">
+			    <label for="exampleInputPassword1">Contraseña</label>
+			    <input type="password" class="form-control" id="registerPassword" (keyup)="doKeyBoardRegister($event)"  name="password" [(ngModel)]="createUser.password">
+			  </div>
+			  <button type="submit" class="btn btn-material btn-primary btn-block" [ngClass]="{'deactive': auth.authState.isAuthenticating }" (click)="doRegister()">REGISTRARME</button>
+
+			  <div class="other mt-md-2">
+			  	<p class="forgot">¿Ya tienes cuenta?<br><span [routerLink]="['/login']">Ingresar al panel</span></p>
+			  </div>
+			</div>
+			<div class="col-md-9 featured-img">
+
+				<div class="quote">
+					
+				</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+<app-toast [toastType]="'auth'" [color]="'white'"></app-toast>
+<app-toast [toastType]="'error'" [color]="'white'" [error]="auth.authState.error"></app-toast>
