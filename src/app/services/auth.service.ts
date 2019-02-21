@@ -6,33 +6,34 @@ import { Md5 } from 'ts-md5/dist/md5';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Cacheable } from 'ngx-cacheable';
-import * as moment from 'moment';
 import { Session } from '../models/auth.type';
+import * as moment from 'moment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private shopURL = 'https://officenet.net.ve/api/';
   private wsKey = 'IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU';
-	private getAPI = `ws_key=${this.wsKey}&output_format=JSON&display=full`;
+  private getAPI = `ws_key=${this.wsKey}&output_format=JSON&display=full`;
   private cookieKey = 'gb4JMmb1M0PFRRNM3N6MMO87h5y0prGqCrPGrPLr4ZaA4KdTupyTNQCO';
   private emailMatch = /^[a-zA-Z0-9\-_]+(\.[a-zA-Z0-9\-_]+)*@[a-z0-9]+(\-[a-z0-9]+)*(\.[a-z0-9]+(\-[a-z0-9]+)*)*\.[a-z]{2,4}$/;
-  private httpOptions = { headers: new HttpHeaders({'Content-Type':  'application/xml'})};
+  private httpOptions = { headers: new HttpHeaders({ 'Content-Type': 'application/xml' }) };
 
   public authState = {
-  	isAuthenticating: false,
-  	finishAuthentication:false,
-  	isLoggedIn:false,
-  	error: {
-  		hasError:false,
-  		type:'',
-  		message:''
-  	},
-  	loginType: {
-  		value: 2, /*1 = COTIZR USER, 2 = SHOP USER, 3 ADMIN USER.*/
-  	},
-  	session: null,
-  	appUser: new BehaviorSubject(null)
+    isAuthenticating: false,
+    finishAuthentication: false,
+    isLoggedIn: false,
+    error: {
+      hasError: false,
+      type: '',
+      message: ''
+    },
+    loginType: {
+      value: 2, /*1 = COTIZR USER, 2 = SHOP USER, 3 ADMIN USER.*/
+    },
+    session: null,
+    appUser: new BehaviorSubject(null)
   }
 
   constructor(private http: HttpClient, private aps: Angular2PrestaService, private router: Router) {
@@ -92,7 +93,7 @@ export class AuthService {
 
   @Cacheable()
   public getTokens(): Observable<any> {
-    return this.http.get('https://officenet.net.ve/api/cotizr_token?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&display=full',{ responseType: 'text'}).pipe(
+    return this.http.get('https://officenet.net.ve/api/cotizr_token?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&display=full', { responseType: 'text' }).pipe(
       map(res => {
         let tokens = JSON.parse(res)['cotizr_tokens'] ? JSON.parse(res)['cotizr_tokens'] : [];
         console.log('In Token Database we have...', tokens.length, 'tokens.');
@@ -100,15 +101,15 @@ export class AuthService {
       })
     )
   }
-  
+
   public setLoginType(type: number): void {
-  	if (type == 1 || type == 2 || type == 3) {
-  		this.authState.loginType.value = type;
-  		console.log('Type setted');
-  		console.log(this.authState);
-  	} else {
-  		console.error(`The type ${type} doesn't exist in this architecture, Authentication...`);
-  	}
+    if (type == 1 || type == 2 || type == 3) {
+      this.authState.loginType.value = type;
+      console.log('Type setted');
+      console.log(this.authState);
+    } else {
+      console.error(`The type ${type} doesn't exist in this architecture, Authentication...`);
+    }
   }
 
   private removeSession(): void {
@@ -121,7 +122,7 @@ export class AuthService {
   }
 
   public getLoginType(): number {
-  	return this.authState.loginType.value;
+    return this.authState.loginType.value;
   }
 
   public login(user, type: number): void {/*TRUE: IS ADMIN, FALSE: IS CUSTOMER*/
@@ -140,17 +141,17 @@ export class AuthService {
             console.log('Doing password linear search.');
             if (this.doComparation(user, dbUsers, false)) {
               console.log('Password found, auth parameters completed.');
-              let targetUser = this.getUser(user,dbUsers);
+              let targetUser = this.getUser(user, dbUsers);
               targetUser.type = authType;
               //this.findUserQuotations(this.getUser(user, dbUsers));
               this.authState.appUser.next(targetUser);
               this.initSession(authType, targetUser);
-            } else { 
+            } else {
               this.throwError(1, 'auth');
               this.authState.isAuthenticating = false;
             }
-          } else { 
-            this.throwError(0, 'auth'); 
+          } else {
+            this.throwError(0, 'auth');
             this.authState.isAuthenticating = false;
           }
           console.log('Disconnecting...');
@@ -158,76 +159,76 @@ export class AuthService {
         }
       });
     } else {
-      let loginSub = this.http.get(`${this.shopURL}cotizr_user?${this.getAPI}`, { responseType: 'text'})
-      .subscribe((response: any) => {
-        if (response) {
-          console.log('Conected to Cotizr user database.');
-          let dbUsers = JSON.parse(response)['cotizr_users'];
-          // console.log(dbUsers);
-          if (dbUsers.length != 0) {
-            dbUsers = dbUsers.map((x) => {
-              x.passwd = x.password;
-              delete x.password;
-              return x;
-            })
+      let loginSub = this.http.get(`${this.shopURL}cotizr_user?${this.getAPI}`, { responseType: 'text' })
+        .subscribe((response: any) => {
+          if (response) {
+            console.log('Conected to Cotizr user database.');
+            let dbUsers = JSON.parse(response)['cotizr_users'];
+            // console.log(dbUsers);
+            if (dbUsers.length != 0) {
+              dbUsers = dbUsers.map((x) => {
+                x.passwd = x.password;
+                delete x.password;
+                return x;
+              })
 
-            if (this.doComparation(user, dbUsers)) {
-              console.log('We have the user in our database');
-              console.log('Doing password linear search.');
-              if (this.doComparation(user, dbUsers, false)) {
-                console.log('Password found, auth parameters completed.');
-                // console.log(this.getUser(user,dbUsers));
-   							
-                let targetUser = this.getUser(user,dbUsers);
-                targetUser.type = 'cotizr_user';
-                this.authState.appUser.next(targetUser);
-                this.initSession('cotizr_user', targetUser);
-                loginSub.unsubscribe();
-              } else { 
-                this.throwError(1, 'auth');
+              if (this.doComparation(user, dbUsers)) {
+                console.log('We have the user in our database');
+                console.log('Doing password linear search.');
+                if (this.doComparation(user, dbUsers, false)) {
+                  console.log('Password found, auth parameters completed.');
+                  // console.log(this.getUser(user,dbUsers));
+
+                  let targetUser = this.getUser(user, dbUsers);
+                  targetUser.type = 'cotizr_user';
+                  this.authState.appUser.next(targetUser);
+                  this.initSession('cotizr_user', targetUser);
+                  loginSub.unsubscribe();
+                } else {
+                  this.throwError(1, 'auth');
+                  this.authState.isAuthenticating = false;
+                }
+              } else {
+                this.throwError(0, 'auth');
                 this.authState.isAuthenticating = false;
               }
-            } else { 
-              this.throwError(0, 'auth'); 
-              this.authState.isAuthenticating = false;
+            } else {
+              this.throwError(21, 'auth');
             }
-          } else {
-            this.throwError(21, 'auth');
           }
-        }
-      })
+        })
     }
   }
 
   public doRegister(user): void {
     this.authState.isAuthenticating = true;
 
-    let accountSub = this.http.get('https://officenet.net.ve/api/cotizr_user?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&display=full',{ responseType: 'text'})
-    .subscribe((response: any) => {
-      let users = JSON.parse(response)['cotizr_users'] ? JSON.parse(response)['cotizr_users'] : JSON.parse(response);
-      if (users.length > 0) {
-        // console.log('This is the user db:',JSON.parse(response));
-        let targetExistingEmail = users ? users.find((account => account.email == user.email)) : null; 
-        if (!targetExistingEmail) {
-          console.log('Registering account.');
+    let accountSub = this.http.get('https://officenet.net.ve/api/cotizr_user?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&display=full', { responseType: 'text' })
+      .subscribe((response: any) => {
+        let users = JSON.parse(response)['cotizr_users'] ? JSON.parse(response)['cotizr_users'] : JSON.parse(response);
+        if (users.length > 0) {
+          // console.log('This is the user db:',JSON.parse(response));
+          let targetExistingEmail = users ? users.find((account => account.email == user.email)) : null;
+          if (!targetExistingEmail) {
+            console.log('Registering account.');
+            console.log(users);
+            console.log(user.length);
+            user.id = users.length;
+            console.log(user);
+            this.createAccount(user);
+          } else {
+            this.throwError(20)
+          }
           console.log(users);
-          console.log(user.length);
-          user.id = users.length;
-          console.log(user);
-          this.createAccount(user);
+          accountSub.unsubscribe();
         } else {
-          this.throwError(20)
+          user.id = 1;
+          this.createAccount(user);
         }
-        console.log(users);
-        accountSub.unsubscribe();
-      } else {
-        user.id = 1;
-        this.createAccount(user);
-      }
-    }, error => {
-      console.error(error);
-    });
-    
+      }, error => {
+        console.error(error);
+      });
+
     console.log(user);
   }
 
@@ -237,17 +238,17 @@ export class AuthService {
       username: user.name
     }
     let accountSub = this.http.post('https://officenet.net.ve/api/cotizr_user?schema=blank&ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU', this.generateUserXML(user), this.httpOptions)
-    .subscribe(
-      response => {
-        console.log(response);
-      },
-      error => {
-        if (error.status == 201) {
-          console.log('Account Created...login in');
-          this.initSession('cotizr_user', user);
+      .subscribe(
+        response => {
+          console.log(response);
+        },
+        error => {
+          if (error.status == 201) {
+            console.log('Account Created...login in');
+            this.initSession('cotizr_user', user);
+          }
         }
-      }
-    )
+      )
   }
 
   private generateUserXML(user): string {
@@ -268,7 +269,7 @@ export class AuthService {
   private initSession(authType: string, user): void {// TRUE: ADMIN, FALSE: CUSTOMER // GOOGLE || EMAIL(& PASSWORD)
     let token = this.generateAuthToken();
     let session = { type: authType, sessionInit: new Date(), user: user, token: token };
-  
+
     this.saveAuthToken(token, user.id, session);
     this.updateSessionState(session);
   }
@@ -284,12 +285,12 @@ export class AuthService {
           this.resetAuthState();
           this.router.navigate(['home']);
           this.http.delete(`https://officenet.net.ve/api/cotizr_token/${targetToken.id}?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU`).subscribe((x) => {
-            if(x) {
+            if (x) {
               console.log('Fine')
             }
           }, error => {
             console.log(error);
-          });  
+          });
           tokenSub.unsubscribe();
         }
       });
@@ -302,23 +303,23 @@ export class AuthService {
   private saveAuthToken(token, id, session): void {
     console.log('Uploading Token to DB');
     let postSubscription = this.http.post(`${this.shopURL}cotizr_token?schema=blank&ws_key=${this.wsKey}`, this.generateTokenXML(token, id), this.httpOptions)
-    .subscribe(
-      response => {
-        console.log(response)
-        if (response) {
-          postSubscription.unsubscribe();
+      .subscribe(
+        response => {
+          console.log(response)
+          if (response) {
+            postSubscription.unsubscribe();
+          }
+        },
+        error => {
+          if (error.status == 201) {
+            console.log('LOGGED. PASSING SECURITY');
+            this.router.navigate(['panel']);
+            this.finishAuth();
+            this.setSession(session);
+            postSubscription.unsubscribe();
+          }
         }
-      },
-      error => {
-        if (error.status == 201) {
-          console.log('LOGGED. PASSING SECURITY');
-          this.router.navigate(['panel']);
-          this.finishAuth();
-          this.setSession(session);
-          postSubscription.unsubscribe();
-        }
-      }
-    );
+      );
   }
 
   private updateSessionState(session): void {
@@ -330,11 +331,11 @@ export class AuthService {
   }
 
   private getUser(user, array: Array<any>): any {
-    let targetUser = array.find(x => x.email == user.email); 
+    let targetUser = array.find(x => x.email == user.email);
     // console.log(targetUser);
     let userModel = {
-      name: targetUser.firstname ? targetUser.firstname + ' ' + targetUser.lastname : JSON.parse(targetUser.metadata).username, 
-      email: targetUser.email, 
+      name: targetUser.firstname ? targetUser.firstname + ' ' + targetUser.lastname : JSON.parse(targetUser.metadata).username,
+      email: targetUser.email,
       id: targetUser.id
     }
     return userModel;
@@ -354,23 +355,23 @@ export class AuthService {
   }
 
   private doComparation(item, array, isEmail = true): boolean { /*isEmail = false: Is a password comparation*/
-  	return isEmail ? array.find(x => x.email.toLowerCase() == item.email.toLowerCase()) ? true : false : array.find(x => x.passwd == Md5.hashStr(this.cookieKey + item.password)) ? true : false;
+    return isEmail ? array.find(x => x.email.toLowerCase() == item.email.toLowerCase()) ? true : false : array.find(x => x.passwd == Md5.hashStr(this.cookieKey + item.password)) ? true : false;
   }
 
   public authErrorReset(): void {
     this.authState.error = {
-    	hasError: false,
-    	type:'',
-    	message:''
+      hasError: false,
+      type: '',
+      message: ''
     }
   }
 
   public throwError(errorType: number, errorClass?: string): void {
     this.authErrorReset();
     this.authState.error = {
-    	hasError:true,
-    	type: errorClass,
-    	message: ''
+      hasError: true,
+      type: errorClass,
+      message: ''
     }
 
     if (errorType == 0) {
@@ -378,19 +379,19 @@ export class AuthService {
       this.authState.error.message = 'Este Email no esta registrado.';
     } else if (errorType == 1) {
       // console.error('Password is wrong')
-      this.authState.error.message ='La contraseña es incorrecta';
+      this.authState.error.message = 'La contraseña es incorrecta';
     } else if (errorType == 2) {
       // console.error('No email')
       this.authState.error.message = 'Ingresa un email valido porfavor.';
     } else if (errorType == 3) {
       // console.error('No password')
-      this.authState.error.message ='Ingresa una contraseña porfavor.';
+      this.authState.error.message = 'Ingresa una contraseña porfavor.';
     } else if (errorType == 4) {
       // console.error('No Name provided')
-      this.authState.error.message ='Ingresa una nombre de mas de 4 caracteres.';
+      this.authState.error.message = 'Ingresa una nombre de mas de 4 caracteres.';
     } else if (errorType == 5) {
       // console.error('No Address')
-      this.authState.error.message ='Ingresa tu dirección';
+      this.authState.error.message = 'Ingresa tu dirección';
     } else if (errorType == 20) {
       // console.error('Email already exist')
       this.authState.error.message = 'Este email ya esta en uso.';
@@ -403,7 +404,7 @@ export class AuthService {
   public doKeyBoardLogin(event, user): void {
     if (event.keyCode == '13') {
       this.loginValidate(user);
-    }  
+    }
   }
 
   private setSession(session): void {
@@ -427,7 +428,7 @@ export class AuthService {
   }
 
   public loginValidate(user): void {
-  	if (this.doEmailValidation(user.email)) {
+    if (this.doEmailValidation(user.email)) {
       if (user.password != '') {
         this.login(user, this.authState.loginType.value);
       } else {
@@ -455,7 +456,7 @@ export class AuthService {
     this.authState.isLoggedIn = true;
   }
 
-  public doEmailValidation(email): boolean {
+  public doEmailValidation(email: string): boolean {
     if (this.emailMatch.test(email)) {
       return true;
     } else {
@@ -467,16 +468,14 @@ export class AuthService {
   private resetAuthState(): void {
     this.authState = {
       isAuthenticating: false,
-      finishAuthentication:false,
-      isLoggedIn:false,
+      finishAuthentication: false,
+      isLoggedIn: false,
       error: {
-        hasError:false,
-        type:'',
-        message:''
+        hasError: false,
+        type: '',
+        message: ''
       },
-      loginType: {
-        value: 2, /*1 = COTIZR USER, 2 = SHOP USER, 3 ADMIN USER.*/
-      },
+      loginType: { value: 2 }, /*1 = COTIZR USER, 2 = SHOP USER, 3 ADMIN USER.*/
       session: null,
       appUser: new BehaviorSubject(null)
     }

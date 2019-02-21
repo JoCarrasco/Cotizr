@@ -52,7 +52,6 @@ const prestashopConfiguration: Angular2PrestaConfiguration = {
     UserComponent,
     SearchQuotationsComponent,
     LoadingComponent,
-  
   ],
   imports: [
     BrowserModule,
