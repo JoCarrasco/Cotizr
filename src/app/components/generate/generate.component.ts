@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { QuotationService } from '../../services/quotation.service';
+import { QuotationService } from 'src/app/core';
+
 @Component({
   selector: 'app-generate',
   templateUrl: './generate.component.html',

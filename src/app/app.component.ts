@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { AuthService } from './services/auth.service';
+import { AuthService } from './core';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit{
-	constructor(private auth:AuthService) {
+export class AppComponent implements OnInit {
+  constructor(private auth: AuthService) { }
 
-	}
- 	ngOnInit(): void {
- 		this.auth.initFastAuth();
- 	}
+  ngOnInit(): void {
+    this.auth.initFastAuth();
+  }
 }

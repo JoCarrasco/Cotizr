@@ -1,6 +1,6 @@
 <div class="wrapper" >
-	<div class="toast" [ngClass]="{'active': auth.authState.isAuthenticating == true ? true : false}" [ngStyle]="{'background': toastState.color}" *ngIf="toastType == 'auth'">
-		<div class="loading" *ngIf="auth.authState.isAuthenticating">
+	<div class="toast" [ngClass]="{'active': auth.isAuthenticating == true ? true : false}" [ngStyle]="{'background': toastState.color}" *ngIf="toastType == 'auth'">
+		<div class="loading" *ngIf="auth.isAuthenticating">
 			<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
 		</div>
 		<div class="message">

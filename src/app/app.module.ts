@@ -2,40 +2,40 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { GroupSeparatorPipe } from './pipes/group-separator.pipe';
-import { ShortDecimalPipe } from './pipes/short-decimals.pipe';
 import { AppRoutingModule } from './routing/app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './pages/home/home.component';
 import { HeaderComponent } from './components/shared/header/header.component';
 import { Angular2PrestaModule, Angular2PrestaConfiguration } from 'angular2-presta';
-import { LoginComponent } from './components/login/login.component';
+import { APP_BASE_HREF, Location } from '@angular/common';
+import { LoginComponent } from './pages/login/login.component';
 import { LandingComponent } from './components/shared/landing/landing.component';
 import { ToastComponent } from './components/shared/toast/toast.component';
-import { RegisterComponent } from './components/register/register.component';
-import { AdminComponent } from './components/admin/admin.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { AdminComponent } from './pages/admin/admin.component';
 import { PanelComponent } from './components/panel/panel.component';
 import { GenerateComponent } from './components/generate/generate.component';
 import { GenerateProductsComponent } from './components/generate/children/generate-products/generate-products.component';
 import { GenerateDataComponent } from './components/generate/children/generate-data/generate-data.component';
-import { UserQuotationsComponent } from './components/user-quotations/user-quotations.component';
-import { UserComponent } from './components/user/user.component';
+import { UserQuotationsComponent } from './pages/user-quotations/user-quotations.component';
+import { UserComponent } from './pages/user/user.component';
 import { SearchQuotationsComponent } from './components/search-quotations/search-quotations.component';
 import { LoadingComponent } from './components/shared/loading/loading.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { PrestashopInfo } from './shared';
+import { ShortDecimalPipe, PricePipe } from './pipes';
+import { SearchComponent } from './components/shared/search/search.component';
 
-import { APP_BASE_HREF, Location } from '@angular/common';
-
-const prestashopConfiguration: Angular2PrestaConfiguration = {
-  apiKey: 'IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU',
-  imageApiKey: 'KFFHJS6IYEINF34856EN35GINGMGNK25',
-  shopUrl: 'https://officenet.net.ve/api/'
-}
+export const a2pConfig: Angular2PrestaConfiguration = {
+  apiKey: PrestashopInfo.wsKey,
+  shopUrl: PrestashopInfo.shopAPI
+};
 
 @NgModule({
   declarations: [
     AppComponent,
-    GroupSeparatorPipe,
+    PricePipe,
     ShortDecimalPipe,
     HomeComponent,
     HeaderComponent,
@@ -52,14 +52,16 @@ const prestashopConfiguration: Angular2PrestaConfiguration = {
     UserComponent,
     SearchQuotationsComponent,
     LoadingComponent,
+    SearchComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
+    Angular2PrestaModule.forRoot(a2pConfig),
     AppRoutingModule,
-    Angular2PrestaModule.forRoot(prestashopConfiguration)
   ],
   providers: [],
   bootstrap: [AppComponent]

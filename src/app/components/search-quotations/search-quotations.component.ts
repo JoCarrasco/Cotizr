@@ -1,50 +1,49 @@
 import { Component, OnInit } from '@angular/core';
-import { QuotationService } from '../../services/quotation.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { QuotationService } from 'src/app/core';
 @Component({
   selector: 'app-search-quotations',
   templateUrl: './search-quotations.component.html',
   styleUrls: ['./search-quotations.component.scss']
 })
 export class SearchQuotationsComponent implements OnInit {
-	searchQuotationState = {
-    isFullyLoaded:false,
-    searchType:'',
+  searchQuotationState = {
+    isFullyLoaded: false,
+    searchType: '',
     referenceArrays: {
-      all:[],
-      pendent:[],
-      rejected:[],
-      approved:[]
+      all: [],
+      pendent: [],
+      rejected: [],
+      approved: []
     },
     array: [],
-    pagination:[],
-    pages:[],
-    displayPages:[],
-    isModalActive:false,
-    quotationPreview:null,
+    pagination: [],
+    pages: [],
+    displayPages: [],
+    isModalActive: false,
+    quotationPreview: null,
     edit: {
-      value:null,
-      message:''
+      value: null,
+      message: ''
     }
-	}
+  }
 
   buttons = [
-    { title:'TODAS', activeColor: '#1b9ee2', searchValue: 'all', status: 100 },
-    { title:'PENDIENTES', activeColor: '#ff6c00', searchValue: 'pendent', status: 0 },
-    { title:'RECHAZADAS', activeColor: '#ff3c3c', searchValue: 'rejected',status: 1 },
-    { title:'APROBADAS', activeColor: '#4eff55', searchValue: 'approved', status: 2 },
+    { title: 'TODAS', activeColor: '#1b9ee2', searchValue: 'all', status: 100 },
+    { title: 'PENDIENTES', activeColor: '#ff6c00', searchValue: 'pendent', status: 0 },
+    { title: 'RECHAZADAS', activeColor: '#ff3c3c', searchValue: 'rejected', status: 1 },
+    { title: 'APROBADAS', activeColor: '#4eff55', searchValue: 'approved', status: 2 },
   ];
 
   constructor(public quotation: QuotationService, private http: HttpClient) { }
 
   ngOnInit() {
     this.setSearchType('all');
-    this.quotation.searchQuotation(this.searchQuotationState.searchType)
-    this.getSearchQuotations();
+    this.quotation.searchQuotation(this.searchQuotationState.searchType);
     this.paginationInit();
   }
 
-  setSearchType(type:string): void {
+  setSearchType(type: string): void {
     if (type == 'all' && this.searchQuotationState.searchType == 'all') {
       this.quotation.searchQuotation(this.searchQuotationState.searchType);
       this.searchQuotationState.array = this.searchQuotationState.referenceArrays[type];
@@ -52,7 +51,7 @@ export class SearchQuotationsComponent implements OnInit {
     } else {
       this.searchQuotationState.array = this.searchQuotationState.referenceArrays[type];
       this.searchQuotationState.searchType = type;
-      
+
     }
   }
 
@@ -61,18 +60,18 @@ export class SearchQuotationsComponent implements OnInit {
     this.searchQuotationState.quotationPreview = null;
     this.searchQuotationState.edit = {
       value: null,
-      message:''
+      message: ''
     }
   }
 
-  private getSearchQuotations(): void {
-    this.quotation.quotationState.searchedQuotations.subscribe((res:any) => {
-      if (res && res.length > 0) {
-        console.log('Begin filter');
-        this.filterQuotations(res);
-      }
-    });
-  }
+  // private getSearchQuotations(): void {
+  //   this.quotation.searchedResuult.subscribe((res: any) => {
+  //     if (res && res.length > 0) {
+  //       console.log('Begin filter');
+  //       this.filterQuotations(res);
+  //     }
+  //   });
+  // }
 
   setEditTo(type: number): void {
     this.searchQuotationState.edit.value = type;
@@ -85,18 +84,17 @@ export class SearchQuotationsComponent implements OnInit {
   }
 
   searchQuotation(value: string): void {
-    this.resetState();
-    this.quotation.searchQuotation(this.searchQuotationState.searchType, value);
-    this.getSearchQuotations();
-    if (this.searchQuotationState.searchType != 'all' && value.length > 0) {
-      this.setSearchType('all');
-    }
+    // this.resetState();
+    // this.quotation.searchQuotation(this.searchQuotationState.searchType, value);
+    // if (this.searchQuotationState.searchType != 'all' && value.length > 0) {
+    //   this.setSearchType('all');
+    // }
   }
 
   paginationInit(): void {
     let pagination = [];
-    this.http.get('https://officenet.net.ve/api/cotizr_quotation?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&sort=[id_DESC]', {responseType: 'text'}).subscribe((x:any) => {
-      let array = JSON.parse(x)['cotizr_quotations']; 
+    this.http.get('https://officenet.net.ve/api/cotizr_quotation?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&sort=[id_DESC]', { responseType: 'text' }).subscribe((x: any) => {
+      let array = JSON.parse(x)['cotizr_quotations'];
       if (array) {
         this.renderPaginationComponent(array.length);
       }
@@ -138,7 +136,7 @@ export class SearchQuotationsComponent implements OnInit {
   private renderPaginationComponent(length): void {
     let pages = [];
     let numberOfPages = (length / 20) + 1;
-    for (let i = 0; i <= numberOfPages; i++)  {
+    for (let i = 0; i <= numberOfPages; i++) {
       let model = {
         index: i + 1,
         offset: i < 1 ? length - (1 * 20) : length - (i * 20) + 20,
@@ -147,7 +145,7 @@ export class SearchQuotationsComponent implements OnInit {
       pages.push(model);
     }
 
-    this.searchQuotationState.pages = pages.sort((a,b) => a.index - b.index);
+    this.searchQuotationState.pages = pages.sort((a, b) => a.index - b.index);
 
     /**/
 
@@ -196,15 +194,15 @@ export class SearchQuotationsComponent implements OnInit {
   renderPagination(page): void {
     console.log('Rendering...', page);
     this.setSearchType('all');
-    let sub = this.http.get(`https://officenet.net.ve/api/cotizr_quotation?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&display=full&output_format=JSON&filter[id]=[${page.offset},${page.limit}]&sort=[id_DESC]`, {responseType: 'text'})
-    .subscribe((x:any) => {
-      let array = JSON.parse(x)['cotizr_quotations']; 
-      if (array) {
-        array.forEach((quotation) => { quotation.products = JSON.parse(quotation.products) });
-        this.filterQuotations(array);
-        sub.unsubscribe();
-      }
-    })
+    let sub = this.http.get(`https://officenet.net.ve/api/cotizr_quotation?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&display=full&output_format=JSON&filter[id]=[${page.offset},${page.limit}]&sort=[id_DESC]`, { responseType: 'text' })
+      .subscribe((x: any) => {
+        let array = JSON.parse(x)['cotizr_quotations'];
+        if (array) {
+          array.forEach((quotation) => { quotation.products = JSON.parse(quotation.products) });
+          this.filterQuotations(array);
+          sub.unsubscribe();
+        }
+      })
   }
 
   nextPagination(currentSection) {
@@ -220,10 +218,10 @@ export class SearchQuotationsComponent implements OnInit {
 
   private resetState(): void {
     this.searchQuotationState.referenceArrays = {
-      all:[],
-      pendent:[],
-      rejected:[],
-      approved:[]
+      all: [],
+      pendent: [],
+      rejected: [],
+      approved: []
     }
   }
 
@@ -236,8 +234,8 @@ export class SearchQuotationsComponent implements OnInit {
   }
 
   saveChanges(): void {
-    this.quotation.editQuotation(this.searchQuotationState.quotationPreview, this.searchQuotationState.edit.value, this.searchQuotationState.edit.message);
-    this.getSearchQuotations();
+    // this.quotation.editQuotation(this.searchQuotationState.quotationPreview, this.searchQuotationState.edit.value, this.searchQuotationState.edit.message);
+    // this.getSearchQuotations();
   }
 
   download(quotation): void {

@@ -37,7 +37,7 @@
 		      <td>{{ _quotation.id }}</td>
 		      <td>{{ _quotation.products.items.length }}</td>
 		      <td>{{ _quotation.products.metadata ? _quotation.products.metadata.userInfo.email : 'Email No Proporcionado' }}</td>
-		      <td>{{ quotation.getTotal(_quotation.products.items, true) | shortDecimal | groupSeparator }} Bs.S</td>
+		      <td>{{ quotation.getTotal(_quotation.products.items, true) | shortDecimal | price }} Bs.S</td>
 		      <td>{{ _quotation.products.state ? fromNumberToStatus(_quotation.products.state.stateStatus) : 'Pendiente' }}</td>
 		    </tr>
 		  </tbody>
@@ -73,29 +73,29 @@
 				    	<th scope="row">{{ userQuotationState.quotationPreview.products.items.indexOf(product) + 1  }}</th>
 				      <th scope="row">{{ product.name  }}</th>
 				      <td>{{ product.ammount }}</td>
-				      <td class="white-nowrap">{{ product.price | shortDecimal | groupSeparator }}</td>
-				      <td class="white-nowrap">{{ product.price * product.ammount | shortDecimal | groupSeparator }} Bs.S</td>
+				      <td class="white-nowrap">{{ product.price | shortDecimal | price }}</td>
+				      <td class="white-nowrap">{{ product.price * product.ammount | shortDecimal | price }} Bs.S</td>
 				    </tr>
 				    <tr>
 				    	<th scope="row"></th>
 				      <th scope="row"></th>
 				      <td></td>
 				      <td>SubTotal</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items,false) | shortDecimal | groupSeparator }} Bs.S</td>
+				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items,false) | shortDecimal | price }} Bs.S</td>
 				    </tr>
 				    <tr>
 				    	<th scope="row"></th>
 				      <th scope="row"></th>
 				      <td></td>
 				      <td>IVA(16%)</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) - quotation.getTotalArray(userQuotationState.quotationPreview.products.items, false) | shortDecimal | groupSeparator }} Bs.S</td>
+				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) - quotation.getTotalArray(userQuotationState.quotationPreview.products.items, false) | shortDecimal | price }} Bs.S</td>
 				    </tr>
 				    <tr>
 				    	<th scope="row"></th>
 				      <th scope="row"></th>
 				      <td></td>
 				      <td>Total</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) | shortDecimal | groupSeparator }} Bs.S</td>
+				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) | shortDecimal | price }} Bs.S</td>
 				    </tr>
 				  </tbody>
 				</table>
