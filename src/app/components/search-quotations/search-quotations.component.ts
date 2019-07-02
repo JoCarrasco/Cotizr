@@ -1,244 +1,177 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { QuotationService } from 'src/app/core';
+import { QuotationService, ApiService, ActionService, Quotation } from 'src/app/core';
+import { QuotationStateInfo, QuotationState, BusinessMath } from 'src/app/shared';
 @Component({
   selector: 'app-search-quotations',
   templateUrl: './search-quotations.component.html',
   styleUrls: ['./search-quotations.component.scss']
 })
 export class SearchQuotationsComponent implements OnInit {
-  searchQuotationState = {
-    isFullyLoaded: false,
-    searchType: '',
-    referenceArrays: {
-      all: [],
-      pendent: [],
-      rejected: [],
-      approved: []
-    },
-    array: [],
-    pagination: [],
-    pages: [],
-    displayPages: [],
-    isModalActive: false,
-    quotationPreview: null,
-    edit: {
-      value: null,
-      message: ''
-    }
-  }
+  quotationQuantities = 5560;
+  lastOffset = 25;
+  quotations = [];
+  isLoading = false;
+  all = [];
+  pendent = [];
+  rejected = [];
+  approved = [];
+  isFullyLoaded = false;
+  pagination = [];
+  paginationSets = [];
+  currentPaginationDisplay = [];
 
   buttons = [
-    { title: 'TODAS', activeColor: '#1b9ee2', searchValue: 'all', status: 100 },
-    { title: 'PENDIENTES', activeColor: '#ff6c00', searchValue: 'pendent', status: 0 },
-    { title: 'RECHAZADAS', activeColor: '#ff3c3c', searchValue: 'rejected', status: 1 },
-    { title: 'APROBADAS', activeColor: '#4eff55', searchValue: 'approved', status: 2 },
+    { title: 'TODAS', activeColor: '#1b9ee2', status: 100 },
+    { title: 'PENDIENTES', activeColor: '#ff6c00', status: QuotationState.Pendent },
+    { title: 'RECHAZADAS', activeColor: '#ff3c3c', status: QuotationState.Rejected },
+    { title: 'APROBADAS', activeColor: '#4eff55', status: QuotationState.Approved },
   ];
 
-  constructor(public quotation: QuotationService, private http: HttpClient) { }
+  constructor(public quotationService: QuotationService, private api: ApiService, private action: ActionService) { }
 
-  ngOnInit() {
-    this.setSearchType('all');
-    this.quotation.searchQuotation(this.searchQuotationState.searchType);
-    this.paginationInit();
+  async ngOnInit() {
+    this.requestOffset(this.lastOffset);
   }
 
-  setSearchType(type: string): void {
-    if (type == 'all' && this.searchQuotationState.searchType == 'all') {
-      this.quotation.searchQuotation(this.searchQuotationState.searchType);
-      this.searchQuotationState.array = this.searchQuotationState.referenceArrays[type];
-      this.searchQuotationState.searchType = type;
-    } else {
-      this.searchQuotationState.array = this.searchQuotationState.referenceArrays[type];
-      this.searchQuotationState.searchType = type;
-
-    }
-  }
-
-  closeModal(): void {
-    this.searchQuotationState.isModalActive = false;
-    this.searchQuotationState.quotationPreview = null;
-    this.searchQuotationState.edit = {
-      value: null,
-      message: ''
-    }
-  }
-
-  // private getSearchQuotations(): void {
-  //   this.quotation.searchedResuult.subscribe((res: any) => {
-  //     if (res && res.length > 0) {
-  //       console.log('Begin filter');
-  //       this.filterQuotations(res);
-  //     }
-  //   });
-  // }
-
-  setEditTo(type: number): void {
-    this.searchQuotationState.edit.value = type;
-  }
-
-  displayQuotation(quotation): void {
-    this.searchQuotationState.isModalActive = true
-    this.searchQuotationState.quotationPreview = quotation;
-    console.log(quotation);
-  }
-
-  searchQuotation(value: string): void {
-    // this.resetState();
-    // this.quotation.searchQuotation(this.searchQuotationState.searchType, value);
-    // if (this.searchQuotationState.searchType != 'all' && value.length > 0) {
-    //   this.setSearchType('all');
-    // }
-  }
-
-  paginationInit(): void {
-    let pagination = [];
-    this.http.get('https://officenet.net.ve/api/cotizr_quotation?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&output_format=JSON&sort=[id_DESC]', { responseType: 'text' }).subscribe((x: any) => {
-      let array = JSON.parse(x)['cotizr_quotations'];
-      if (array) {
-        this.renderPaginationComponent(array.length);
+  async requestOffset(offset: number) {
+    const today = new Date().valueOf;
+    this.action.load('Descargando lista de cotizaciones');
+    this.isLoading = true;
+    this.all = [];
+    this.quotations = [];
+    this.lastOffset = offset;
+    let quotations = await this.api.getQuotations(offset);
+    if (quotations) {
+      quotations = quotations.sort(function (a: Quotation, b: Quotation) { return new Date(a.date_created).getTime() + new Date(b.date_created).getTime() });
+      console.log(quotations[0].date_created);
+      this.action.stop();
+      this.all = quotations;
+      this.quotations = quotations;
+      this.quotations = quotations.map((x) => {
+        x.items = JSON.parse(x.items);
+        x.items = x.items.map((x) => {
+          x.amount = x.ammount;
+          delete x.ammount;
+          return x;
+        });
+        return x;
+      });
+      if (offset === 25) {
+        this.displayPages(10);
+        this.currentPaginationDisplay = this.paginationSets[0];
+        this.isFullyLoaded = true;
       }
-    });
+      this.isLoading = false;
+    } else {
+      this.action.stop();
+      this.isLoading = false;
+    }
   }
 
+  resetAll() {
+    this.quotationQuantities = 5560;
+    this.lastOffset = 25;
+    this.quotations = [];
+    this.isLoading = false;
+    this.all = [];
+    this.pendent = [];
+    this.rejected = [];
+    this.approved = [];
+    this.isFullyLoaded = false;
+    this.pagination = [];
+    this.paginationSets = [];
+    this.currentPaginationDisplay = [];
+  }
 
-  fromNumberToStatus(value): string {
-    let result = '';
-    if (value == 0) {
-      result = 'Pendiente';
-    } else if (value == 1) {
-      result = 'Rechazada';
-    } else if (value == 2) {
-      result = 'Aprobada';
-    }
-    return result;
+  quotationStatus(value): string {
+    return QuotationStateInfo[value].message;
   }
 
   private filterQuotations(arr): void {
-    this.resetState();
-    this.searchQuotationState.referenceArrays.all = arr;
-    this.searchQuotationState.referenceArrays.pendent = arr.filter((item) => item.products.state ? item.products.state.stateStatus == 0 : item);
-    this.searchQuotationState.referenceArrays.rejected = arr.filter((item) => {
-      if (item.products.state) {
-        return item.products.state.stateStatus == 1;
-      } else { }
-    });
-    this.searchQuotationState.referenceArrays.approved = arr.filter((item) => {
-      if (item.products.state) {
-        return item.products.state.stateStatus == 2;
-      } else { }
-    });
-    this.searchQuotationState.array = arr;
-    this.searchQuotationState.isFullyLoaded = true;
-
+    this.all = arr;
+    this.pendent = arr.filter((item) => item.products.state.stateStatus === QuotationState.Pendent);
+    this.rejected = arr.filter((item) => item.products.state.stateStatus === QuotationState.Rejected);
+    this.approved = arr.filter((item) => item.products.state.stateStatus === QuotationState.Approved);
+    this.isFullyLoaded = true;
   }
 
-  private renderPaginationComponent(length): void {
-    let pages = [];
-    let numberOfPages = (length / 20) + 1;
-    for (let i = 0; i <= numberOfPages; i++) {
-      let model = {
-        index: i + 1,
-        offset: i < 1 ? length - (1 * 20) : length - (i * 20) + 20,
-        limit: i < 1 ? length : length - (i * 20) < 0 ? 0 : length - (i * 20)
-      }
-      pages.push(model);
+  nextPaginationDisplay(currentPaginationDisplay) {
+    const index = this.paginationSets.indexOf(this.currentPaginationDisplay);
+    this.currentPaginationDisplay = this.paginationSets[index + 1];
+    console.log(this.currentPaginationDisplay);
+  }
+
+  handleChange(e, value) {
+    console.log(e, value);
+    if (e.keyCode === 13) {
+      this.searchQuotation(value);
     }
-
-    this.searchQuotationState.pages = pages.sort((a, b) => a.index - b.index);
-
-    /**/
-
-    this.displayPages(pages);
+    // searchQuotation(query.value)
   }
 
-  displayPages(pages): void {
-    let loopCount = pages;
-    let offset = 0;
-    let limit = 3;
-    let pagination = [];
-    let page = [];
-    console.log('Total Sections:', loopCount);
+  // searchQuotation(value: string) {
+  //   this.
+  // }
 
-    pages.forEach((x) => {
-      if (pages.indexOf(x) % 3 != 0 || pages.indexOf(x) == 0) {
-        page.push(x);
+  async getQuotationsByStatus(status: QuotationState) {
+    console.log(status);
+    if (status === 100) {
+      this.requestOffset(25);
+    }
+  }
+
+  async searchQuotation(id: string) {
+    this.action.load('Buscando cotizacion');
+    if (id.length > 0) {
+      const quotation = (await this.api.getQuotation(id));
+      if (quotation) {
+        quotation.items = JSON.parse(quotation.items).map((x) => {
+          x.amount = x.ammount;
+          delete x.ammount;
+          return x;
+        });
+        this.quotations = [quotation];
+        this.action.stop();
       } else {
-        page.push(x);
-        pagination.push(page);
-        page = [];
+        this.action.load('No se encontro niguna cotizacion con ese id');
       }
-    });
-
-    console.log(pagination);
-    // for (let i = 1; i <= loopCount; i++) {
-    //   let page = [];
-
-    //   for (let x = offset; x <= limit; x++) {
-    //     page.push(x);
-    //     // console.log(page);
-    //     if (x == limit) {
-    //       limit = i + 1 * 5;
-    //       offset = i * 5;
-    //     }
-    //   }
-
-    //   pagination.push(page);
-    //  console.log(pagination);
-    // }
-    this.searchQuotationState.pagination = pagination;
-    this.searchQuotationState.displayPages = pagination[0];
-    console.log(this.searchQuotationState);
-  }
-
-  renderPagination(page): void {
-    console.log('Rendering...', page);
-    this.setSearchType('all');
-    let sub = this.http.get(`https://officenet.net.ve/api/cotizr_quotation?ws_key=IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU&display=full&output_format=JSON&filter[id]=[${page.offset},${page.limit}]&sort=[id_DESC]`, { responseType: 'text' })
-      .subscribe((x: any) => {
-        let array = JSON.parse(x)['cotizr_quotations'];
-        if (array) {
-          array.forEach((quotation) => { quotation.products = JSON.parse(quotation.products) });
-          this.filterQuotations(array);
-          sub.unsubscribe();
-        }
-      })
-  }
-
-  nextPagination(currentSection) {
-    let index = this.searchQuotationState.pagination.indexOf(currentSection);
-    console.log(this.searchQuotationState.pagination.indexOf(currentSection));
-    this.searchQuotationState.displayPages = this.searchQuotationState.pagination[index + 1];
-  }
-
-  previousPagination(currentSection) {
-    let index = this.searchQuotationState.pagination.indexOf(currentSection);
-    this.searchQuotationState.displayPages = this.searchQuotationState.pagination[index - 1];
-  }
-
-  private resetState(): void {
-    this.searchQuotationState.referenceArrays = {
-      all: [],
-      pendent: [],
-      rejected: [],
-      approved: []
+      console.log(quotation);
     }
   }
 
-  ifIsOffset(currentPage): boolean {
-    return this.searchQuotationState.pagination.indexOf(currentPage) == 0 ? true : false;
+  previousPaginationDisplay(currentPaginationDisplay) {
+    const index = this.paginationSets.indexOf(this.currentPaginationDisplay);
+    this.currentPaginationDisplay = this.paginationSets[index - 1];
+    console.log(this.currentPaginationDisplay);
   }
 
-  ifIsLimit(currentPage): boolean {
-    return this.searchQuotationState.pagination.indexOf(currentPage) == this.searchQuotationState.pagination.length - 1 ? true : false;
+  displayPages(groupNumber: number): void {
+    let paginationGroupCounter = groupNumber;
+    const arr = [];
+    const pageNumber = this.quotationQuantities / 25;
+    for (let i = 1; i <= pageNumber; i++) {
+      arr.push({
+        number: i,
+        offset: this.lastOffset * i
+      });
+    }
+
+    this.pagination = arr;
+    let temp = [];
+    this.pagination.forEach((x) => {
+      if (this.pagination.indexOf(x) <= paginationGroupCounter) {
+        temp.push(x);
+        if (this.pagination.indexOf(x) === paginationGroupCounter) {
+          this.paginationSets.push(temp);
+          paginationGroupCounter += groupNumber;
+          console.log('Counter is', paginationGroupCounter);
+          temp = [];
+        }
+      }
+    });
   }
 
-  saveChanges(): void {
-    // this.quotation.editQuotation(this.searchQuotationState.quotationPreview, this.searchQuotationState.edit.value, this.searchQuotationState.edit.message);
-    // this.getSearchQuotations();
-  }
-
-  download(quotation): void {
-    this.quotation.generatePDF(quotation);
+  total(products: any[]) {
+    return BusinessMath.subtotalFromProductArray(products);
   }
 }

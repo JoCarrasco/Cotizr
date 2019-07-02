@@ -8,39 +8,29 @@
 						<span>Volver a Inicio</span>
 					</div>
 				</div>
-				<div>
-					<div class="forms mt-md-4">
-						<div class="range-wrapper">
+				<div class="mt-2">
+					<form [formGroup]="form">
+						<div class="form-group">
 							<label for="customRange2">Iniciar sesión Como</label>
-							<div class="row">
-								<div class="col-md-6">
-									<button class="btn btn-primary">Cliente Officenet</button>
-									<button class="btn btn-primary">Cliente CotizaYA</button>
-								</div>
-							</div>
-							<!-- <input type="range" class="custom-range" min="1" max="2" id="customRange2"
-								[value]="auth.authState.loginType.value" #range (change)="auth.setLoginType(range.value)">
-							<div class="modes">
-								<span (click)="auth.setLoginType(mode.value)"
-									[ngClass]="{'active': auth.authState.loginType.value == mode.value}"
-									*ngFor="let mode of loginModes">{{ mode.name }}</span>
-							</div> -->
+							<select class="form-control" formControlName="user_type">
+								<option *ngFor="let type of authTypes" [ngValue]="type.value">{{ type.name }}</option>
+							</select>
 						</div>
-					</div>
-					<div class="form-group mt-md-4">
-						<label for="exampleInputEmail1">Correo Electrónico</label>
-						<input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="email"
-							[(ngModel)]="user.email" (keyup)="auth.doKeyBoardLogin($event, user)">
-					</div>
-					<div class="form-group">
-						<label for="exampleInputPassword1">Contraseña</label>
-						<input type="password" class="form-control" id="exampleInputPassword1" name="password"
-							[(ngModel)]="user.password" (keyup)="auth.doKeyBoardLogin($event, user)">
-					</div>
-					<button type="submit" class="btn btn-material btn-primary btn-block" (click)="login()"
-						[ngClass]="{'deactive': auth.isAuthenticating }">
-						INGRESAR
-					</button>
+						<div class="form-group">
+							<label>Correo Electrónico</label>
+							<input type="email" class="form-control" name="email" formControlName="email"
+								(keyup)="handleKeyboardEvent($event)">
+						</div>
+						<div class="form-group">
+							<label>Contraseña</label>
+							<input type="password" class="form-control" name="password" formControlName="password"
+								(keyup)="handleKeyboardEvent($event)">
+						</div>
+						<button type="submit" class="btn btn-material btn-primary btn-block" (click)="login()"
+							[ngClass]="{'deactive': auth.isAuthenticating || form.valid === false}">
+							INGRESAR
+						</button>
+					</form>
 					<div class="other mt-md-2">
 						<p class="forgot">¿No tienes cuenta?<br><span [routerLink]="['/register']">Crear cuenta de Invitado</span>
 						</p>
@@ -54,9 +44,4 @@
 			</div>
 		</div>
 	</div>
-</div>
-<app-toast [toastType]="'auth'" [color]="'white'"></app-toast>
-<app-toast [toastType]="'error'" [color]="'white'" [error]="auth.error"></app-toast>
-<div class="fab right worker" [routerLink]="['../admin']">
-	<i class="fas fa-door-open backdoor"></i>
 </div>

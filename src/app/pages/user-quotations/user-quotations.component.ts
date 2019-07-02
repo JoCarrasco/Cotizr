@@ -1,81 +1,28 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService, QuotationService } from 'src/app/core';
+import { AuthService, QuotationService, ApiService, Quotation } from 'src/app/core';
 @Component({
   selector: 'app-user-quotations',
   templateUrl: './user-quotations.component.html',
   styleUrls: ['./user-quotations.component.scss']
 })
 export class UserQuotationsComponent implements OnInit {
+  userQuotations: Quotation[] = [];
 
-  constructor(public auth: AuthService, public quotation: QuotationService) { }
-
-  userQuotationState = {
-    isFullyLoaded: false,
-    user: {
-      id: '',
-      name: '',
-      email: ''
-    },
-    isModalActive: false,
-    quotationPreview: null,
-    quotations: []
-  };
+  constructor(public auth: AuthService, public quotationService: QuotationService, private api: ApiService) { }
 
   ngOnInit() {
-    this.loadUserData();
+    this.getUserQuotations();
   }
 
-  private loadUserData(): void {
-    const user = this.auth.session.user;
-    if (user) {
-      this.userQuotationState.user = {
-        id: user.id,
-        name: user.name,
-        email: user.email
-      };
-
-      this.loadUserQuotations(user, this.auth.getSession().type);
+  public async getUserQuotations(): Promise<any> {
+    if (this.auth.session) {
+      // this.userQuotations = (await this.api.getUserQuotations(this.auth.session.user.id)).map((x) => {
+      //   x.products = JSON.parse(x.products);
+      //   x.products.items.map((y) => {
+      //     y.total = y.amount * y.price;
+      //   });
+      //   return x;
+      // }).sort((a, b) => b - a);
     }
-  }
-
-  displayQuotation(quotation): void {
-    this.userQuotationState.quotationPreview = quotation;
-    this.userQuotationState.isModalActive = true
-  }
-
-  fromNumberToStatus(value): string {
-    let result = '';
-    if (value == 0) {
-      result = 'Pendiente';
-    } else if (value == 1) {
-      result = 'Rechazada';
-    } else if (value == 2) {
-      result = 'Aprobada';
-    }
-    return result;
-  }
-
-  private loadUserQuotations(user, session): void {
-    console.log('Loading Quotations');
-    // this.quotation.getUserQuotations(user, this.auth.getSession().type).subscribe((quotations) => {
-    //   console.log('Listening to user quotations');
-    //   console.log(quotations);
-    //   if (quotations != undefined) {
-    //     if (quotations.length > 0) {
-    //       quotations.sort((a, b) => b.id - a.id);
-    //       this.userQuotationState.quotations = quotations;
-    //       console.log(this.userQuotationState);
-    //       this.userQuotationState.isFullyLoaded = true;
-    //     } else {
-    //       this.userQuotationState.quotations = quotations;
-    //       console.log(this.userQuotationState);
-    //       this.userQuotationState.isFullyLoaded = true;
-    //     }
-    //   } else {
-    //     this.userQuotationState.quotations = [];
-    //     console.log(this.userQuotationState);
-    //     this.userQuotationState.isFullyLoaded = true;
-    //   }
-    // });
   }
 }

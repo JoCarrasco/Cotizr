@@ -7,7 +7,7 @@
   </a>
   <div class="collapse navbar-collapse" id="navbarTogglerDemo01" *ngIf="headerType == 'home'">
     <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-      <li class="nav-item active">
+      <li class="nav-item active" *ngIf="!isSessionSet()">
         <a class="nav-link" [routerLink]="['/login']">INGRESAR <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active" *ngIf="auth.session">
@@ -25,13 +25,16 @@
         <a class="nav-link" (click)="goTo('panel/generate')">GENERAR COTIZACIÓN <span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active">
+        <a class="nav-link" (click)="goTo('panel/settings')">CONFIGURACION <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item active">
         <a class="nav-link" (click)="goTo('panel/user-quotations')">MIS COTIZACIONES<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active">
         <a class="nav-link" href="https://officenet.net.ve/">IR A LA TIENDA<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item active">
-        <a class="nav-link" (click)="goTo('panel/search-quotation')" *ngIf="auth.session.type == 'Employee'">BUSCAR COTIZACIONES<span class="sr-only">(current)</span></a>
+        <a class="nav-link" (click)="goTo('panel/search-quotation')" *ngIf="auth.session.type == 'admin'">BUSCAR COTIZACIONES<span class="sr-only">(current)</span></a>
       </li>
       <li class="nav-item">
         <a class="nav-link" (click)="logOut()">CERRAR SESIÓN</a>

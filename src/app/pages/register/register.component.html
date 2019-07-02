@@ -15,12 +15,6 @@
 							(keyup)="doKeyBoardRegister($event)" name="name" formControlName="name">
 					</div>
 					<div class="form-group mt-md-4">
-						<label for="exampleInputEmail1">Dirección</label>
-						<input type="textare" class="form-control" id="registerAddress" aria-describedby="emailHelp"
-							placeholder='Ej."Estado Yaracuy, Urb Los Castillos"' (keyup)="doKeyBoardRegister($event)" name="address"
-							formControlName="address">
-					</div>
-					<div class="form-group mt-md-4">
 						<label for="exampleInputEmail1">Correo Electronico</label>
 						<input type="email" class="form-control" id="registerEmail" aria-describedby="emailHelp"
 							placeholder='Ej."danielgonzales@example.com"' (keyup)="doKeyBoardRegister($event)" name="email"
@@ -45,5 +39,3 @@
 		</div>
 	</div>
 </div>
-<app-toast [toastType]="'auth'" [color]="'white'"></app-toast>
-<app-toast [toastType]="'error'" [color]="'white'" [error]="auth.error"></app-toast>

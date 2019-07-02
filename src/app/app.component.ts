@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from './core';
+import { AuthService, ApiService } from './core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -7,9 +8,11 @@ import { AuthService } from './core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  constructor(private auth: AuthService) { }
+  constructor(private auth: AuthService, private api: ApiService, private http: HttpClient) { }
 
   ngOnInit(): void {
     this.auth.initFastAuth();
+    this.api.init();
   }
 }
+

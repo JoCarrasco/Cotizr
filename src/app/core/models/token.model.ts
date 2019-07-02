@@ -1,7 +1,9 @@
 import { BaseEntityClass } from './base-class.model';
 
 export class Token extends BaseEntityClass<Token> {
-  token: string;
-  id_customer: number;
+  value: string;
+  type: string;
+  user_id: string;
+  user_type: string;
   expiration_time: Date;
 }

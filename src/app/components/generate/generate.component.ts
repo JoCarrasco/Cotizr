@@ -8,7 +8,7 @@ import { QuotationService } from 'src/app/core';
 })
 export class GenerateComponent implements OnInit {
 
-  constructor(public quotation: QuotationService) { }
+  constructor(public quotationService: QuotationService) { }
 
   ngOnInit() {
   }

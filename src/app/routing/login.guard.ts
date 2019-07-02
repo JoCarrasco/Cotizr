@@ -18,7 +18,6 @@ export class LoginGuard implements CanActivate {
     if (!this.auth.session) {
       return true;
     } else {
-      this.router.navigate(['panel']);
       return false;
     }
   }

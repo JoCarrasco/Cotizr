@@ -8,11 +8,10 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
-  private registerForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.minLength(5)]),
+  public registerForm = new FormGroup({
+    name: new FormControl('', [Validators.required, Validators.minLength(3)]),
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(5)]),
-    address: new FormControl('', [Validators.required, Validators.minLength(4)])
   });
 
   constructor(public auth: AuthService) { }
@@ -21,12 +20,14 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log(this.registerForm.value);
+
   }
 
   public doKeyBoardRegister(event): void {
     if (event.keyCode === '13') {
-      this.doRegister();
+      if (this.registerForm.valid) {
+        this.doRegister();
+      }
     }
   }
 

@@ -1,24 +1,12 @@
-<div class="wrapper" >
-	<div class="toast" [ngClass]="{'active': auth.isAuthenticating == true ? true : false}" [ngStyle]="{'background': toastState.color}" *ngIf="toastType == 'auth'">
-		<div class="loading" *ngIf="auth.isAuthenticating">
+<div class="wrapper">
+	<div class="toast" [ngClass]="{'active': message !== undefined }" [style.color]='color' [style.background-color]="backgroundColor">
+		<div>
+			<div class="message">
+				<span>{{ message }}</span>
+			</div>
+		</div>
+		<!-- <div class="loading" *ngIf="auth.isAuthenticating">
 			<div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
-		</div>
-		<div class="message">
-			<span>Autenticando...</span>
-		</div>
-	</div>
-
-	<div class="toast error" [ngClass]="{'active': error != undefined && error.hasError == true ? true : false}" *ngIf="toastType == 'error'" (click)="dismiss()">
-		<div class="message">
-			<i class="fas fa-exclamation-circle"></i>
-			<span> {{ error.message }}</span>
-		</div>
-	</div>
-
-	<div class="toast process" [ngClass]="{'active': process != undefined && process.isLoading}" *ngIf="toastType == 'process'">
-		<div class="message">
-			<i class="fas fa-exclamation-circle"></i>
-			<span> {{ process.message }}</span>
-		</div>
+		</div> -->
 	</div>
 </div>

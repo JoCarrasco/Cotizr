@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "sw": "sw-precache --root=dist --config=sw-precache-config.js"
+    "deploy": "ng build --prod && http-server -p 8080 -c-1 dist/cotizr"
   },
   "private": true,
   "dependencies": {
@@ -20,7 +20,9 @@
     "@angular/http": "~7.0.0",
     "@angular/platform-browser": "~7.0.0",
     "@angular/platform-browser-dynamic": "~7.0.0",
+    "@angular/pwa": "^0.800.6",
     "@angular/router": "~7.0.0",
+    "@angular/service-worker": "~7.0.0",
     "angular2-presta": "^0.1.18",
     "core-js": "^2.5.4",
     "jspdf": "^1.4.1",

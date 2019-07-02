@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, QuotationService } from 'src/app/core';
+import { AppStorage, StorageKey } from 'src/app/shared';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +16,10 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  isSessionSet(): boolean {
+    return AppStorage.has(StorageKey.Session);
   }
 
   private setHeaderType(): void {

@@ -3,15 +3,16 @@ import { User, QuotationItem } from '.';
 import { QuotationState } from 'src/app/shared';
 
 export class Quotation extends BaseEntityClass<Quotation> {
-  user: User;
-  items: QuotationItem[];
+  id_customer: number;
+  emails: string[];
+  items: QuotationItem[] | string;
   subtotal: number;
-  state: QuotationState;
-  cotizer: string;
+  status: QuotationState;
+  user: { name: string; email: string; };
+  receiver: string;
   phone_number: string;
   company_address: string;
   company_name: string;
   identification: string;
-  username: string;
-  date_created: Date;
+  date_created: string;
 }

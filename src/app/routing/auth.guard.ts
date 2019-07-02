@@ -5,6 +5,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { map } from 'rxjs/operators';
 import { AuthService, ApiService } from '../core';
+import { AppStorage, StorageKey } from '../shared';
 
 @Injectable({
   providedIn: 'root'
@@ -18,16 +19,15 @@ export class AuthGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     return new Observable<boolean>((observer) => {
-      this.api.getAuthToken(this.auth.session.token.token).then((token => {
+      this.api.checkToken(AppStorage.get(StorageKey.Session).token).then((token => {
+        console.log(token);
         if (token) {
-          if (token) {
-            observer.next(true);
-            observer.complete();
-          } else {
-            this.router.navigate(['login']);
-            observer.next(false);
-            observer.complete();
-          }
+          observer.next(true);
+          observer.complete();
+        } else {
+          this.router.navigate(['login']);
+          observer.next(false);
+          observer.complete();
         }
       }));
     });

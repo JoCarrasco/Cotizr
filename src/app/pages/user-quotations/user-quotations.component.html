@@ -4,17 +4,16 @@
 			<div class="user-info">
 				<i class="far fa-user"></i>
 				<div class="details">
-					<span>{{ userQuotationState.user.name }}</span>
-					<span>{{ userQuotationState.user.email }}</span>
+					<span>{{ auth.session.user.name }}</span>
+					<!-- <span>{{ userQuotationState.user.email }}</span> -->
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
 <div class="container">
-	<app-loading *ngIf="!userQuotationState.isFullyLoaded"></app-loading>
 	<div class="col-sm-12">
-		<table class="table" *ngIf="userQuotationState.isFullyLoaded && userQuotationState.quotations.length > 0">
+		<table class="table" *ngIf="userQuotations.length > 0">
 		  <caption>Mis Cotizaciones</caption>
 		  <thead>
 		    <tr>
@@ -28,21 +27,21 @@
 		    </tr>
 		  </thead>
 		  <tbody>
-		    <tr *ngFor="let _quotation of userQuotationState.quotations">
+		    <tr *ngFor="let quotation of userQuotations">
 		    	<th scope="row">
-		    		<i class="far fa-eye" data-toggle="modal" data-target="#previewUserQuotations" (click)="displayQuotation(_quotation)"></i>
-		        <i class="fas fa-download" (click)="quotation.generatePDF(_quotation)"></i>
+		    		<i class="far fa-eye" data-toggle="modal" data-target="#previewUserQuotations" (click)="displayQuotation(quotation)"></i>
+		        <i class="fas fa-download" (click)="quotation.generatePDF(quotation)"></i>
 		    	</th>
-		      <th scope="row">{{ userQuotationState.quotations.indexOf(_quotation) + 1  }}</th>
-		      <td>{{ _quotation.id }}</td>
-		      <td>{{ _quotation.products.items.length }}</td>
-		      <td>{{ _quotation.products.metadata ? _quotation.products.metadata.userInfo.email : 'Email No Proporcionado' }}</td>
-		      <td>{{ quotation.getTotal(_quotation.products.items, true) | shortDecimal | price }} Bs.S</td>
-		      <td>{{ _quotation.products.state ? fromNumberToStatus(_quotation.products.state.stateStatus) : 'Pendiente' }}</td>
+		      <th scope="row">{{ userQuotations.indexOf(quotation) + 1  }}</th>
+		      <td>{{ quotation.id }}</td>
+		      <td>{{ quotation.products.items.length }}</td>
+		      <td>{{ quotation.products.metadata ? quotation.products.metadata.userInfo.email : 'Email No Proporcionado' }}</td>
+		      <td>{{ quotationService.getTotal(quotation.products.items, true) | shortDecimal | price }} Bs.S</td>
+		      <td>{{ quotation.products.state ? fromNumberToStatus(quotation.products.state.stateStatus) : 'Pendiente' }}</td>
 		    </tr>
 		  </tbody>
 		</table>
-		<div class="log" *ngIf="userQuotationState.isFullyLoaded && userQuotationState.quotations.length < 1">
+		<div class="log" *ngIf="userQuotations.length < 1">
 			<p>No tienes ninguna cotización.</p>
 		</div>
 	</div>	
@@ -57,7 +56,7 @@
         </button>
       </div>
       <div class="modal-body">
-	     	<table class="table" *ngIf="userQuotationState.isModalActive">
+	     	<!-- <table class="table" *ngIf="userQuotationState.isModalActive">
 				  <caption>Cotizaciones</caption>
 				  <thead>
 				    <tr>
@@ -95,10 +94,10 @@
 				      <th scope="row"></th>
 				      <td></td>
 				      <td>Total</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) | shortDecimal | price }} Bs.S</td>
+				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) | price }} Bs.S</td>
 				    </tr>
 				  </tbody>
-				</table>
+				</table> -->
       </div>
     </div>
   </div>

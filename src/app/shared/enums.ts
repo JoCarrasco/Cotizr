@@ -1,8 +1,14 @@
 export enum AuthType {
-  Employee = 'Employee',
-  Customer = 'Customer',
-  Guest = 'Guest'
+  Employee = 'admin',
+  Customer = 'customer',
+  Guest = 'app'
 }
+
+export const AuthTypeMetadata = {
+  [AuthType.Employee]: { name: 'Trabajador OfficeNET' },
+  [AuthType.Customer]: { name: 'Cliente OfficeNET' },
+  [AuthType.Guest]: { name: 'Usuario CotizaYA' }
+};
 
 export enum CartOperation {
   Add = 0,
@@ -10,20 +16,18 @@ export enum CartOperation {
 }
 
 export enum StorageKey {
+  OfflineModeSettings = 'cotizr-offline-mode',
   Session = 'cotizr-storage-session',
   Quotation = 'cotizr-storage-quotaton',
   OfflineProducts = 'cotizr-storage-offline-products'
 }
 
 export enum APIResource {
-  AuthToken = 'cotizr_token',
-  CotizrUser = 'cotizr_user',
-  Quotations = 'cotizr_quotations',
-  Customers = 'customers',
-  Employees = 'employees',
+  AuthToken = 'token',
+  Quotations = 'quotations',
   Products = 'products',
-  Search = 'search',
-  SearchProducts = 'search/products'
+  Authentication = 'auth',
+  Registration = 'register'
 }
 
 export enum APIFormat {
@@ -48,6 +52,32 @@ export enum CRUDAction {
   Delete = 'delete',
 }
 
+export enum ActionType {
+  Error,
+  Loading,
+  Success,
+  Message
+}
+
+export const ToastAction = {
+  [ActionType.Error]: {
+    'background-color': '#F44336',
+    'color': '#fff'
+  },
+  [ActionType.Loading]: {
+    'background-color': '#fff',
+    'color': '#3F51B5'
+  },
+  [ActionType.Success]: {
+    'background-color': '#4CAF50',
+    'color': '#fff'
+  },
+  [ActionType.Message]: {
+    'background-color': '#fff',
+    'color': '#1b1b1b'
+  }
+};
+
 export const ErrorMetadata = {
   [ErrorType.WrongAuth]: { message: 'La contraseña o el email es incorrecto' },
   [ErrorType.InvalidEmail]: { message: 'El email es invalido' },
@@ -58,23 +88,37 @@ export const ErrorMetadata = {
   [ErrorType.NonExistingEmail]: { message: 'Este email no esta registrado' }
 };
 
-export const ResourceByAuthType = {
-  [AuthType.Employee]: {
-    resource: APIResource.Employees,
-    get: 'getEmployee'
+export enum ResponseStatus {
+  NotFound = 404,
+  BadServerResponse = 1200,
+  Unauthorized = 401
+}
+
+export const ResponseStatusInfo = {
+  [ResponseStatus.NotFound]: {
+    message: 'Lo siento, pero el servidor no puede encontrar el recurso que se ha intentado buscar'
   },
-  [AuthType.Customer]: {
-    resource: APIResource.Customers,
-    get: 'getCustomers'
+  [ResponseStatus.Unauthorized]: {
+    message: 'No estas autorizado, para hacer esta accion. Lo sentimos'
   },
-  [AuthType.Guest]: {
-    resource: APIResource.CotizrUser,
-    get: 'getCotizrUsers'
+  [ResponseStatus.BadServerResponse]: {
+    message: 'El servidor no retorna recursos correctamente'
   }
 };
 
 export enum QuotationState {
   Pendent = 0,
   Readed,
-  Complete
+  Complete,
+  Approved,
+  Rejected
 }
+
+export const QuotationStateInfo = {
+  [QuotationState.Pendent]: { message: 'Pendiente' },
+  [QuotationState.Readed]: { message: 'Leido' },
+  [QuotationState.Complete]: { message: 'Completado' },
+  [QuotationState.Approved]: { message: 'Aprobado' },
+  [QuotationState.Rejected]: { message: 'Rechazada' }
+};
+

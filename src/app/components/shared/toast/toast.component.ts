@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { toastAnimation } from '../../../animations/sub-components';
-import { AuthService } from 'src/app/core';
+import { ActionService } from 'src/app/core';
+import { ToastAction, ActionType } from 'src/app/shared';
 @Component({
   selector: 'app-toast',
   templateUrl: './toast.component.html',
@@ -10,42 +11,22 @@ import { AuthService } from 'src/app/core';
   ]
 })
 export class ToastComponent implements OnInit {
-  @Input() toastType: string;
-  @Input() color: string;
-  @Input() error: any;
-  @Input() process: any;
+  isLoading = false;
+  backgroundColor = '#fff';
+  color = '#1b1b1b';
+  message: string;
 
-  toastState = {
-    isActive: false,
-    isError: false,
-    isLoading: false,
-    message: '',
-    color: '',
-    type: ''
-  }
+  constructor(private actionService: ActionService) { }
 
-  constructor(public auth: AuthService) { }
-
-  ngOnInit() { }
-
-  dismiss(): void {
-    this.toastState = {
-      isActive: false,
-      isError: false,
-      isLoading: false,
-      message: '',
-      color: '',
-      type: ''
-    }
-  }
-
-  nameToHEX(colorName: string): string {
-    if (colorName === 'white') {
-      return '#fff';
-    } else if (colorName === 'red') {
-      return '#e21b3b';
-    } else {
-      console.error('No color stored for that parameter for the toast.');
-    }
+  ngOnInit() {
+    this.actionService.action.subscribe((action) => {
+      console.log(action);
+      this.backgroundColor = action ? ToastAction[action.type]['background-color'] : undefined;
+      this.color = action ? ToastAction[action.type].color : undefined;
+      this.message = action ? action.message : undefined;
+      if (action) {
+        this.isLoading = action.type === ActionType.Loading;
+      }
+    });
   }
 }
