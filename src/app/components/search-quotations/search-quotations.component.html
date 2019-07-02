@@ -8,148 +8,177 @@
 <div class="container pb-4">
 	<div class="row">
 		<div class="col-md-4">
-		<div class="searchbar">
-    	 <input type="text" placeholder="ID o Nro Referencia" #query (change)="searchQuotationState.searchType != 'all' ? searchQuotation(query.value) : searchQuotation(query.value)"><i class="fas fa-search" (click)="searchQuotation(query.value)"></i>
-        <button type="submit" style="display:none">hidden submit</button>
-    	</div>
+			<div class="searchbar">
+				<input type="text" placeholder="ID o Nro Referencia" #query (keyup)="handleChange($event, query.value)"><i
+					class="fas fa-search" (click)="searchQuotation(query.value)"></i>
+				<button type="submit" style="display:none">hidden submit</button>
+			</div>
 		</div>
 		<div class="col-md-8 d-flex justify-content-end align-items-center">
 			<div class="button-group">
-				<button class="btn btn-material" 
-        *ngFor="let button of buttons" 
-        (click)="setSearchType(button.searchValue)" 
-        [ngStyle]="{'background': searchQuotationState.searchType == button.searchValue ? button.activeColor : 'transparent'}" 
-        >{{ button.title }}</button>
+				<button class="btn btn-material" *ngFor="let button of buttons" (click)="getQuotationsByStatus(button.status)"
+					[ngStyle]="{'background': searchType == button.searchValue ? button.activeColor : 'transparent'}">{{ button.title }}</button>
 			</div>
 		</div>
 	</div>
-	<app-loading *ngIf="quotation.quotationState.isLoading && quotation.quotationState.searchType == 'quotation'"></app-loading>
-	<div class="col-sm-12">
-		<table class="table" *ngIf="quotation.quotationState.searchedQuotations | async">
-		  <caption>Cotizaciones</caption>
-		  <thead>
-		    <tr>
-		    	<th scope="col">Acciones</th>
-		      <th scope="col">#</th>
-		      <th scope="col">ID</th>
-		      <th scope="col">Cantidad</th>
-		      <th scope="col">Emails</th>
-		      <th scope="col">Total</th>
-		      <th scope="col">Estado</th>
-		      <th scope="col">Fecha de Creación</th>
-		    </tr>
-		  </thead>
-		  <tbody>
-		    <tr *ngFor="let _quotation of searchQuotationState.array">
-		    	<td scope="row" class="white-nowrap">
-		    		<i class="far fa-eye" data-toggle="modal" data-target="#previewSearchQuotations" (click)="displayQuotation(_quotation)"></i>
-		        <i class="far fa-check-square" data-toggle="modal" data-target="#editSearchQuotations" (click)="displayQuotation(_quotation)"></i>
-		        <i class="fas fa-download" (click)="download(_quotation)"></i>
-		    	</td>
-		      <th scope="row">{{ searchQuotationState.array.indexOf(_quotation) + 1  }}</th>
-		      <td>{{ _quotation.id }}</td>
-		      <td>{{ _quotation.products.items.length }}</td>
-		      <td>{{ _quotation.products.metadata ? _quotation.products.metadata.userInfo.email : 'Email No Proporcionado' }}</td>
-		      <td>{{ quotation.getTotal(_quotation.products.items, true) | shortDecimal | groupSeparator }} Bs.S</td>
-		      <td>{{ _quotation.products.state ? fromNumberToStatus(_quotation.products.state.stateStatus) : 'Pendiente' }}</td>
-		      <td class="white-nowrap">{{ _quotation.date_created | date }}  <td>
-		    </tr>
-		  </tbody>
+	<div class="col-sm-12 quotation-list">
+		<table class="table" *ngIf="!isLoading">
+			<caption>Cotizaciones</caption>
+			<thead>
+				<tr>
+					<th scope="col">Acciones</th>
+					<th scope="col">#</th>
+					<th scope="col">ID</th>
+					<th scope="col">Cantidad</th>
+					<th scope="col">Total</th>
+					<th scope="col">Estado</th>
+					<th scope="col">Fecha de Creación</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let quotation of quotations">
+					<td scope="row" class="white-nowrap">
+						<a [routerLink]="['../quotation-detail', quotation.id_cotizr_quotation]">
+							<i class="far fa-eye"></i>
+						</a>
+						<i class="far fa-check-square" data-toggle="modal" data-target="#editSearchQuotations"
+							(click)="displayQuotation(quotation)"></i>
+						<i class="fas fa-download" (click)="download(quotation)"></i>
+					</td>
+					<th scope="row">{{ quotations.indexOf(quotation) + 1  }}</th>
+					<td>{{ quotation.id_cotizr_quotation }}</td>
+					<td>{{ quotation.items.length }}</td>
+					<!-- <td>
+						{{ quotation.products.metadata ? quotation.products.metadata.userInfo.email : 'Email No Proporcionado' }}
+					</td> -->
+					<td>{{ total(quotation.items) | price }} Bs.S</td>
+					<td>{{ quotationStatus(quotation.status) }}
+					</td>
+					<td class="white-nowrap">{{ quotation.date_created }}
+					<td>
+				</tr>
+			</tbody>
 		</table>
 	</div>
-	<div class="container" *ngIf="quotation.quotationState.searchedQuotations | async">
-		<nav aria-label="Page navigation example" *ngIf="searchQuotationState.pages.length > 0">
-		  <ul class="pagination">
-		  	<li class="page-item"><span class="page-link" (click)="previousPagination(searchQuotationState.displayPages)" *ngIf="!ifIsOffset(searchQuotationState.displayPages)">Recientes...</span></li>
-		    <li class="page-item" *ngFor="let page of searchQuotationState.displayPages" ><span class="page-link" (click)="renderPagination(page)">{{ page.index }}</span></li>
 
-		    <li class="page-item"><span class="page-link" (click)="nextPagination(searchQuotationState.displayPages)" *ngIf="!ifIsLimit(searchQuotationState.displayPages)">...Antiguas</span></li>
-		  </ul>
-		</nav>
+	<div class="d-flex justify-content-center align-items-center" *ngIf="isFullyLoaded">
+		<button class="btn btn-primary mr-4" [disabled]="paginationSets.indexOf(currentPaginationDisplay) === 0"
+			(click)="previousPaginationDisplay(currentPaginationDisplay)">Mas Recientes</button>
+			<div class="pagination-group">
+				<span *ngFor="let page of currentPaginationDisplay" class="pagination"
+					[ngClass]="{'selected': page.offset === lastOffset}" (click)="requestOffset(page.offset)">{{ page.number }}</span>
+			</div>
+		<button class="btn btn-primary ml-4" [disabled]="paginationSets.indexOf(currentPaginationDisplay) === paginationSets.length - 1"
+			(click)="nextPaginationDisplay(currentPaginationDisplay)">Mas Antiguas</button>
 	</div>
+	<!-- <div class="container" *ngIf="all">
+		<nav aria-label="Page navigation example" *ngIf="pages.length > 0">
+			<ul class="pagination">
+				<li class="page-item"><span class="page-link" (click)="previousPagination(searchQuotationState.displayPages)"
+						*ngIf="!ifIsOffset(displayedPages)">Recientes...</span></li>
+				<li class="page-item" *ngFor="let page of displayedPages"><span class="page-link"
+						(click)="renderPagination(page)">{{ page.index }}</span></li>
+
+				<li class="page-item"><span class="page-link" (click)="nextPagination(displayedPages)"
+						*ngIf="!ifIsLimit(displayPages)">...Antiguas</span></li>
+			</ul>
+		</nav>
+	</div> -->
 </div>
-<!-- <button type="button" class="btn btn-light btn-material mt-2" data-toggle="modal" data-target="#preview"><i class="fas fa-mail-bulk"></i><div class="quantity" *ngIf="quotation.quotationState.quotationEmails.length > 0">{{ quotation.quotationState.quotationEmails.length }}</div>Agregar Emails</button> -->
 
-<div class="modal fade" id="previewSearchQuotations" tabindex="-1" role="dialog" aria-labelledby="previewSearchQuotationsTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="previewSearchQuotationsTitle">Previsualización de Busqueda</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-	     	<table class="table" *ngIf="searchQuotationState.isModalActive">
-				  <caption>Cotización ON-{{ searchQuotationState.quotationPreview.id }}</caption>
-				  <thead>
-				    <tr>
-				      <th scope="col">#</th>
-				      <th scope="col">Nombre de Producto</th>
-				      <th scope="col">Cantidad</th>
-				      <th scope="col">Precio</th>
-				      <th scope="col">Total</th>
+<!-- <div class="modal fade" id="previewSearchQuotations" tabindex="-1" role="dialog"
+	aria-labelledby="previewSearchQuotationsTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="previewSearchQuotationsTitle">Previsualización de Busqueda</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<table class="table" *ngIf="searchQuotationState.isModalActive">
+					<caption>Cotización ON-{{ searchQuotationState.quotationPreview.id }}</caption>
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th scope="col">Nombre de Producto</th>
+							<th scope="col">Cantidad</th>
+							<th scope="col">Precio</th>
+							<th scope="col">Total</th>
 
-				    </tr>
-				  </thead>
-				  <tbody>
-				    <tr *ngFor="let product of searchQuotationState.quotationPreview.products.items">
-				    	<th scope="row">{{ searchQuotationState.quotationPreview.products.items.indexOf(product) + 1  }}</th>
-				      <th scope="row">{{ product.name  }}</th>
-				      <td>{{ product.ammount }}</td>
-				      <td>{{ product.price | shortDecimal | groupSeparator }}</td>
-				      <td>{{ product.price * product.ammount | shortDecimal | groupSeparator }} Bs.S</td>
-				    
-				    </tr>
-				    <tr>
-				    	<th scope="row"></th>
-				      <th scope="row"></th>
-				      <td></td>
-				      <td>SubTotal</td>
-				      <td>{{ quotation.getTotalArray(searchQuotationState.quotationPreview.products.items,false) | shortDecimal | groupSeparator }} Bs.S</td>
-				    </tr>
-				    <tr>
-				    	<th scope="row"></th>
-				      <th scope="row"></th>
-				      <td></td>
-				      <td>IVA(16%)</td>
-				      <td>{{ quotation.getTotalArray(searchQuotationState.quotationPreview.products.items, true) - quotation.getTotalArray(searchQuotationState.quotationPreview.products.items, false) | shortDecimal | groupSeparator }} Bs.S</td>
-				    </tr>
-				    <tr>
-				    	<th scope="row"></th>
-				      <th scope="row"></th>
-				      <td></td>
-				      <td>Total</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(searchQuotationState.quotationPreview.products.items, true) | shortDecimal | groupSeparator }} Bs.S</td>
-				    </tr>
-				  </tbody>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let product of searchQuotationState.quotationPreview.products.items">
+							<th scope="row">{{ searchQuotationState.quotationPreview.products.items.indexOf(product) + 1  }}</th>
+							<th scope="row">{{ product.name  }}</th>
+							<td>{{ product.ammount }}</td>
+							<td>{{ product.price | shortDecimal | price }}</td>
+							<td>{{ product.price * product.ammount | shortDecimal | price }} Bs.S</td>
+
+						</tr>
+						<tr>
+							<th scope="row"></th>
+							<th scope="row"></th>
+							<td></td>
+							<td>SubTotal</td>
+							<td>
+								{{ quotation.getTotalArray(searchQuotationState.quotationPreview.products.items,false) | shortDecimal | price }}
+								Bs.S</td>
+						</tr>
+						<tr>
+							<th scope="row"></th>
+							<th scope="row"></th>
+							<td></td>
+							<td>IVA(16%)</td>
+							<td>
+								{{ quotation.getTotalArray(searchQuotationState.quotationPreview.products.items, true) - quotation.getTotalArray(searchQuotationState.quotationPreview.products.items, false) | shortDecimal | price }}
+								Bs.S</td>
+						</tr>
+						<tr>
+							<th scope="row"></th>
+							<th scope="row"></th>
+							<td></td>
+							<td>Total</td>
+							<td class="white-nowrap">
+								{{ quotation.getTotalArray(searchQuotationState.quotationPreview.products.items, true) | shortDecimal | price }}
+								Bs.S</td>
+						</tr>
+					</tbody>
 				</table>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal fade" id="editSearchQuotations" tabindex="-1" role="dialog" aria-labelledby="editSearchQuotationsTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editSearchQuotationsTitle">Editar Cotización</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body" *ngIf="searchQuotationState.isModalActive">
-				<p>Estado de Cotización <span class="quotation-state" >{{ searchQuotationState.quotationPreview.products.state ? fromNumberToStatus(searchQuotationState.quotationPreview.products.state.stateStatus) : 'Pendiente' }}</span></p>
-				<button type="button" class="btn btn-block btn-material" (click)="setEditTo(2)" [ngStyle]="{'background': searchQuotationState.edit.value == 2 ? '#4eff55' : 'transparent'}">Aprobar</button>
-				<button type="button" class="btn btn-block btn-material" (click)="setEditTo(1)" [ngStyle]="{'background': searchQuotationState.edit.value == 1 ? '#ff3c3c' : 'transparent'}">Rechazar</button>
-				<label for="exampleFormControlTextarea1 mt-2" *ngIf="searchQuotationState.edit.value == 1">Razón de Rechazo</label>
-    		<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="editMessage" [(ngModel)]="searchQuotationState.edit.message" *ngIf="searchQuotationState.edit.value == 1"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="closeModal()">Cancelar</button>
-        <button type="button" class="btn btn-primary" (click)="saveChanges()" data-dismiss="modal">Guardas Cambios</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<app-toast [toastType]="'error'" [color]="'white'" [error]="quotation.quotationState.error"></app-toast>
+			</div>
+		</div>
+	</div>
+</div> -->
+<!-- <div class="modal fade" id="editSearchQuotations" tabindex="-1" role="dialog"
+	aria-labelledby="editSearchQuotationsTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="editSearchQuotationsTitle">Editar Cotización</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="closeModal()">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" *ngIf="searchQuotationState.isModalActive">
+				<p>Estado de Cotización <span
+						class="quotation-state">{{ searchQuotationState.quotationPreview.products.state ? fromNumberToStatus(searchQuotationState.quotationPreview.products.state.stateStatus) : 'Pendiente' }}</span>
+				</p>
+				<button type="button" class="btn btn-block btn-material" (click)="setEditTo(2)"
+					[ngStyle]="{'background': searchQuotationState.edit.value == 2 ? '#4eff55' : 'transparent'}">Aprobar</button>
+				<button type="button" class="btn btn-block btn-material" (click)="setEditTo(1)"
+					[ngStyle]="{'background': searchQuotationState.edit.value == 1 ? '#ff3c3c' : 'transparent'}">Rechazar</button>
+				<label for="exampleFormControlTextarea1 mt-2" *ngIf="searchQuotationState.edit.value == 1">Razón de
+					Rechazo</label>
+				<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="editMessage"
+					[(ngModel)]="searchQuotationState.edit.message" *ngIf="searchQuotationState.edit.value == 1"></textarea>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="closeModal()">Cancelar</button>
+				<button type="button" class="btn btn-primary" (click)="saveChanges()" data-dismiss="modal">Guardas
+					Cambios</button>
+			</div>
+		</div>
+	</div>
+</div> -->

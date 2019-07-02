@@ -1,34 +1,29 @@
 import { Component, OnInit } from '@angular/core';
-import { QuotationService } from '../../../../services/quotation.service';
-import { AuthService } from '../../../../services/auth.service';
+import { QuotationService, AuthService, Quotation } from 'src/app/core';
+import * as _ from 'lodash';
 @Component({
   selector: 'app-generate-data',
   templateUrl: './generate-data.component.html',
   styleUrls: ['./generate-data.component.scss']
 })
 export class GenerateDataComponent implements OnInit {
-	email:any;
+  data = {};
+  isDataValid = false;
+
   constructor(public quotation: QuotationService, private auth: AuthService) { }
 
   ngOnInit() {
   }
 
-  checkAndSend(): void {
-  	console.log('Checking...');
-  	if (this.quotation.checkFields()) {
-  		console.log('DONE! IS OK.');
-  		this.auth.authState.appUser.subscribe((user) => {
-  			if (user) {
-  				console.log('Got user data...generating quotation');
-  				this.quotation.generateQuotation(user, this.auth.getSession().type);
-  			}
-  		})
-  	} else {
-  		console.error('Error cannot load');
-  	}
+  handleQuotationChange(e): void {
+    if (e) {
+      this.isDataValid = true;
+    }
   }
 
-  resetEmails(email): void {
-  	document.querySelector('.email').nodeValue = '';
+  printQuotation() {
+    this.quotation.createQuotation(_.merge(new Quotation(this.data), {
+      items: this.quotation.quotationItems
+    }));
   }
 }

@@ -1,0 +1,47 @@
+<div class="wrapper">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3 panel p-md-4">
+				<div class="navigation p-sm-2 pb-md-4">
+					<div class="inner" [routerLink]="['/home']">
+						<i class="fas fa-long-arrow-alt-left"></i>
+						<span>Volver a Inicio</span>
+					</div>
+				</div>
+				<div class="mt-2">
+					<form [formGroup]="form">
+						<div class="form-group">
+							<label for="customRange2">Iniciar sesión Como</label>
+							<select class="form-control" formControlName="user_type">
+								<option *ngFor="let type of authTypes" [ngValue]="type.value">{{ type.name }}</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Correo Electrónico</label>
+							<input type="email" class="form-control" name="email" formControlName="email"
+								(keyup)="handleKeyboardEvent($event)">
+						</div>
+						<div class="form-group">
+							<label>Contraseña</label>
+							<input type="password" class="form-control" name="password" formControlName="password"
+								(keyup)="handleKeyboardEvent($event)">
+						</div>
+						<button type="submit" class="btn btn-material btn-primary btn-block" (click)="login()"
+							[ngClass]="{'deactive': auth.isAuthenticating || form.valid === false}">
+							INGRESAR
+						</button>
+					</form>
+					<div class="other mt-md-2">
+						<p class="forgot">¿No tienes cuenta?<br><span [routerLink]="['/register']">Crear cuenta de Invitado</span>
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-9 featured-img d-sm-none d-md-flex">
+				<div class="quote">
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

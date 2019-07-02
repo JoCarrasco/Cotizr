@@ -1,0 +1,41 @@
+<div class="wrapper ">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-3 panel p-md-4">
+				<div class="navigation pb-4">
+					<div class="inner" [routerLink]="['/home']">
+						<i class="fas fa-long-arrow-alt-left"></i>
+						<span>Volver a Inicio</span>
+					</div>
+				</div>
+				<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+					<div class="form-group mt-md-4">
+						<label for="exampleInputEmail1">Nombre y Apellido</label>
+						<input type="text" class="form-control" id="registerName" placeholder='Ej."Daniel Gonzales"'
+							(keyup)="doKeyBoardRegister($event)" name="name" formControlName="name">
+					</div>
+					<div class="form-group mt-md-4">
+						<label for="exampleInputEmail1">Correo Electronico</label>
+						<input type="email" class="form-control" id="registerEmail" aria-describedby="emailHelp"
+							placeholder='Ej."danielgonzales@example.com"' (keyup)="doKeyBoardRegister($event)" name="email"
+							formControlName="email">
+					</div>
+					<div class="form-group">
+						<label for="exampleInputPassword1">Contraseña</label>
+						<input type="password" class="form-control" id="registerPassword" (keyup)="doKeyBoardRegister($event)"
+							name="password" formControlName="password">
+					</div>
+					<button type="submit" class="btn btn-material btn-primary btn-block"
+					 (click)="doRegister()" [disabled]="!registerForm.valid || auth.isAuthenticating">REGISTRARME</button>
+				</form>
+				<div class="other mt-md-2">
+					<p class="forgot">¿Ya tienes cuenta?<br><span [routerLink]="['/login']">Ingresar al panel</span></p>
+				</div>
+			</div>
+			<div class="col-md-9 featured-img">
+				<div class="quote">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

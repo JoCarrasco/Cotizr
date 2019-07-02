@@ -2,40 +2,36 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { GroupSeparatorPipe } from './pipes/group-separator.pipe';
-import { ShortDecimalPipe } from './pipes/short-decimals.pipe';
 import { AppRoutingModule } from './routing/app-routing.module';
 import { AppComponent } from './app.component';
 import { FormsModule } from '@angular/forms';
-import { HomeComponent } from './components/home/home.component';
+import { HomeComponent } from './pages/home/home.component';
 import { HeaderComponent } from './components/shared/header/header.component';
-import { Angular2PrestaModule, Angular2PrestaConfiguration } from 'angular2-presta';
-import { LoginComponent } from './components/login/login.component';
+import { LoginComponent } from './pages/login/login.component';
 import { LandingComponent } from './components/shared/landing/landing.component';
 import { ToastComponent } from './components/shared/toast/toast.component';
-import { RegisterComponent } from './components/register/register.component';
-import { AdminComponent } from './components/admin/admin.component';
+import { RegisterComponent } from './pages/register/register.component';
 import { PanelComponent } from './components/panel/panel.component';
 import { GenerateComponent } from './components/generate/generate.component';
 import { GenerateProductsComponent } from './components/generate/children/generate-products/generate-products.component';
 import { GenerateDataComponent } from './components/generate/children/generate-data/generate-data.component';
-import { UserQuotationsComponent } from './components/user-quotations/user-quotations.component';
-import { UserComponent } from './components/user/user.component';
+import { UserQuotationsComponent } from './pages/user-quotations/user-quotations.component';
+import { UserComponent } from './pages/user/user.component';
 import { SearchQuotationsComponent } from './components/search-quotations/search-quotations.component';
 import { LoadingComponent } from './components/shared/loading/loading.component';
-
-import { APP_BASE_HREF, Location } from '@angular/common';
-
-const prestashopConfiguration: Angular2PrestaConfiguration = {
-  apiKey: 'IDSVZ1NUDEEVVGH6G25CRWDFKDYAZNHU',
-  imageApiKey: 'KFFHJS6IYEINF34856EN35GINGMGNK25',
-  shopUrl: 'https://officenet.net.ve/api/'
-}
+import { ReactiveFormsModule } from '@angular/forms';
+import { ShortDecimalPipe, PricePipe } from './pipes';
+import { SearchComponent } from './components/shared/search/search.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
+import { SettingsComponent } from './pages/settings/settings.component';
+import { QuotationDetailComponent } from './pages/quotation-detail/quotation-detail.component';
+import { QuotationDataFormComponent } from './components/shared/quotation-data-form/quotation-data-form.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    GroupSeparatorPipe,
+    PricePipe,
     ShortDecimalPipe,
     HomeComponent,
     HeaderComponent,
@@ -43,7 +39,6 @@ const prestashopConfiguration: Angular2PrestaConfiguration = {
     LandingComponent,
     ToastComponent,
     RegisterComponent,
-    AdminComponent,
     PanelComponent,
     GenerateComponent,
     GenerateProductsComponent,
@@ -52,14 +47,20 @@ const prestashopConfiguration: Angular2PrestaConfiguration = {
     UserComponent,
     SearchQuotationsComponent,
     LoadingComponent,
+    SearchComponent,
+    SettingsComponent,
+    QuotationDetailComponent,
+    QuotationDataFormComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
-    Angular2PrestaModule.forRoot(prestashopConfiguration)
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    // ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
   providers: [],
   bootstrap: [AppComponent]

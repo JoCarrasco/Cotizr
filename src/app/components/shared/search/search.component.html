@@ -1,0 +1,24 @@
+<div class="searchbar">
+  <input type="text" placeholder="Buscar por ID o palabra clave" #query (keyup)="handleKeyUp($event, query.value)"><i
+    class="fas fa-search" (click)="searchProduct(query)"></i>
+  <button type="submit" style="display:none">hidden submit</button>
+</div>
+<app-loading *ngIf="isSearching"></app-loading>
+<div class="list" *ngIf="searchResult">
+  <div class="item" *ngFor="let item of searchResult">
+    <div class="item-img">
+      <div [style.background-image]="getProductImg(item)" class="img">
+        <div class="amount" *ngIf="quotation.checkExistence(item) || quotation.checkAmount(item) != 0">
+          <span>{{ quotation.checkAmount(item) }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="item-info">
+      <span class="name">{{ item.name }}</span>
+      <span class="price">{{ item.price | price }} Bs.S</span>
+    </div>
+    <div class="buttons">
+      <i class="far fa-plus-square" (click)="quotation.quotateItem(item)"></i>
+    </div>
+  </div>
+</div>

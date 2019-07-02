@@ -1,10 +1,19 @@
-@import '../../../assets/styles/core';
-@import '../../../assets/styles/colors';
+@import '../../../styles/core';
+@import '../../../styles/colors';
 
 .button-group {
   button {
     margin: 0 10px;
   }
+}
+
+.quotation-list {
+  min-height: 1300px;
+}
+.pagination-group {
+  display: flex;
+  min-width: 360px;
+  justify-content: space-around;
 }
 
 .quotation-state {
@@ -13,12 +22,24 @@
   background: $light-gray;
 }
 
+.pagination {
+ 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  max-height: 18px;
+  &:hover {
+    cursor: pointer;
+  }
+  &.selected {
+    background-color: #647eff;
+    color: #fff;
+    border-radius: 100%;
+  }
+}
 
 nav.navigation {
   display: flex;
   justify-content: center;
-}
-.pagination {
-  width: fit-content;
-  margin:auto;
 }
