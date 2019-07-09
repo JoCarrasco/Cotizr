@@ -4,6 +4,12 @@ import { Format } from '../shared';
 @Pipe({name: 'price'})
 export class PricePipe implements PipeTransform {
   transform(value: number): string {
-    return Format.formatNumberWithSeparators(value);
+    if (!value) {
+      return '0';
+    } else {
+      const val = value;
+      return `${Format.formatNumberWithSeparators(val)}`;
+
+    }
   }
 }

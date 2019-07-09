@@ -7,8 +7,6 @@ import { HomeComponent, LoginComponent, RegisterComponent, UserQuotationsCompone
 import { PanelComponent } from '../components/panel/panel.component';
 import { SearchQuotationsComponent } from '../components/search-quotations/search-quotations.component';
 import { GenerateComponent } from '../components/generate/generate.component';
-import { GenerateProductsComponent } from '../components/generate/children/generate-products/generate-products.component';
-import { GenerateDataComponent } from '../components/generate/children/generate-data/generate-data.component';
 import { SettingsComponent } from '../pages/settings/settings.component';
 import { QuotationDetailComponent } from '../pages/quotation-detail/quotation-detail.component';
 
@@ -26,15 +24,7 @@ const routes: Routes = [
       { path: 'quotation-detail/:id', component: QuotationDetailComponent },
       { path: 'user', component: UserComponent },
       { path: 'settings', component: SettingsComponent },
-      {
-        path: 'generate',
-        component: GenerateComponent,
-        children: [
-          { path: '', redirectTo: 'generate-products', pathMatch: 'full' },
-          { path: 'generate-products', component: GenerateProductsComponent },
-          { path: 'generate-data', component: GenerateDataComponent },
-        ]
-      }
+      { path: 'generate', component: GenerateComponent }
     ]
   }
 ];

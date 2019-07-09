@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { QuotationService, ApiService, ActionService, Quotation } from 'src/app/core';
 import { QuotationStateInfo, QuotationState, BusinessMath } from 'src/app/shared';
 @Component({
@@ -7,8 +7,8 @@ import { QuotationStateInfo, QuotationState, BusinessMath } from 'src/app/shared
   styleUrls: ['./search-quotations.component.scss']
 })
 export class SearchQuotationsComponent implements OnInit {
-  quotationQuantities = 5560;
-  lastOffset = 25;
+  quotationQuantities = 5654;
+  lastOffset = 0;
   quotations = [];
   isLoading = false;
   all = [];
@@ -30,7 +30,7 @@ export class SearchQuotationsComponent implements OnInit {
   constructor(public quotationService: QuotationService, private api: ApiService, private action: ActionService) { }
 
   async ngOnInit() {
-    this.requestOffset(this.lastOffset);
+    this.requestOffset(0);
   }
 
   async requestOffset(offset: number) {
@@ -40,23 +40,21 @@ export class SearchQuotationsComponent implements OnInit {
     this.all = [];
     this.quotations = [];
     this.lastOffset = offset;
-    let quotations = await this.api.getQuotations(offset);
+    const quotationObj = (await this.api.getQuotations(offset))
+    const quotations = quotationObj.quotations;
+    this.quotationQuantities = quotationObj.total;
     if (quotations) {
-      quotations = quotations.sort(function (a: Quotation, b: Quotation) { return new Date(a.date_created).getTime() + new Date(b.date_created).getTime() });
-      console.log(quotations[0].date_created);
       this.action.stop();
       this.all = quotations;
       this.quotations = quotations;
       this.quotations = quotations.map((x) => {
-        x.items = JSON.parse(x.items);
-        x.items = x.items.map((x) => {
-          x.amount = x.ammount;
-          delete x.ammount;
-          return x;
-        });
+        if (x.items.length) {
+          x.items = JSON.parse(x.items);
+        }
         return x;
       });
-      if (offset === 25) {
+
+      if (offset === 0) {
         this.displayPages(10);
         this.currentPaginationDisplay = this.paginationSets[0];
         this.isFullyLoaded = true;
@@ -70,7 +68,7 @@ export class SearchQuotationsComponent implements OnInit {
 
   resetAll() {
     this.quotationQuantities = 5560;
-    this.lastOffset = 25;
+    this.lastOffset = 0;
     this.quotations = [];
     this.isLoading = false;
     this.all = [];
@@ -98,7 +96,6 @@ export class SearchQuotationsComponent implements OnInit {
   nextPaginationDisplay(currentPaginationDisplay) {
     const index = this.paginationSets.indexOf(this.currentPaginationDisplay);
     this.currentPaginationDisplay = this.paginationSets[index + 1];
-    console.log(this.currentPaginationDisplay);
   }
 
   handleChange(e, value) {
@@ -106,15 +103,9 @@ export class SearchQuotationsComponent implements OnInit {
     if (e.keyCode === 13) {
       this.searchQuotation(value);
     }
-    // searchQuotation(query.value)
   }
 
-  // searchQuotation(value: string) {
-  //   this.
-  // }
-
   async getQuotationsByStatus(status: QuotationState) {
-    console.log(status);
     if (status === 100) {
       this.requestOffset(25);
     }
@@ -125,35 +116,33 @@ export class SearchQuotationsComponent implements OnInit {
     if (id.length > 0) {
       const quotation = (await this.api.getQuotation(id));
       if (quotation) {
-        quotation.items = JSON.parse(quotation.items).map((x) => {
-          x.amount = x.ammount;
-          delete x.ammount;
-          return x;
-        });
         this.quotations = [quotation];
         this.action.stop();
       } else {
         this.action.load('No se encontro niguna cotizacion con ese id');
       }
-      console.log(quotation);
     }
   }
 
   previousPaginationDisplay(currentPaginationDisplay) {
     const index = this.paginationSets.indexOf(this.currentPaginationDisplay);
     this.currentPaginationDisplay = this.paginationSets[index - 1];
-    console.log(this.currentPaginationDisplay);
   }
 
   displayPages(groupNumber: number): void {
+    let counter = 0;
     let paginationGroupCounter = groupNumber;
     const arr = [];
     const pageNumber = this.quotationQuantities / 25;
     for (let i = 1; i <= pageNumber; i++) {
       arr.push({
         number: i,
-        offset: this.lastOffset * i
+        offset: counter === 0 ? 0 : counter * i,
       });
+
+      if (counter === 0) {
+        counter = 25;
+      }
     }
 
     this.pagination = arr;
@@ -164,7 +153,6 @@ export class SearchQuotationsComponent implements OnInit {
         if (this.pagination.indexOf(x) === paginationGroupCounter) {
           this.paginationSets.push(temp);
           paginationGroupCounter += groupNumber;
-          console.log('Counter is', paginationGroupCounter);
           temp = [];
         }
       }

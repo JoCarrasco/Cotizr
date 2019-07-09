@@ -1,7 +1,7 @@
 <form [formGroup]="quotation">
   <div class="form-group">
     <label>Nombre de Representante</label>
-    <input type="text" class="form-control" name="user_name" formControlName="username" (keyup)="handleKbEvent($event)">
+    <input type="text" class="form-control" name="receiver" formControlName="receiver" (keyup)="handleKbEvent($event)">
   </div>
   <div class="form-group">
     <label>Nombre de La Empresa</label>
@@ -14,10 +14,6 @@
       (keyup)="handleKbEvent($event)">
   </div>
   <div class="form-group">
-    <label>Tipo de Identificacion</label>
-    <input type="text" class="form-control" (keyup)="handleKbEvent($event)">
-  </div>
-  <div class="form-group">
     <label>Identificacion</label>
     <input type="text" class="form-control" name="identification" formControlName="identification"
       (keyup)="handleKbEvent($event)">
@@ -26,5 +22,11 @@
     <label>Teléfono</label>
     <input type="text" class="form-control" name="phone_number" formControlName="phone_number"
       (keyup)="handleKbEvent($event)">
+  </div>
+  <div class="form-group">
+    <label>Estado</label>
+    <select class="form-control" formControlName="status">
+      <option [ngValue]="btn.status" *ngFor="let btn of statusButtons">{{ btn.name }}</option>
+    </select>
   </div>
 </form>

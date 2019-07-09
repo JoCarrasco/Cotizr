@@ -1,7 +1,7 @@
 import { environment } from 'src/environments/environment';
 import { StorageKey, APIResource } from './enums';
 import { PrestashopInfo } from './constants';
-import { HttpGeneratorObject } from '../core';
+import { HttpGeneratorObject, QuotationItem } from '../core';
 import * as moment from 'moment';
 
 export class DevEnv {
@@ -71,16 +71,24 @@ export class BusinessMath {
   }
 
   public static ivaFromProducts(products: any[], percentage: number) {
-    return this.iva(this.subtotalFromProductArray(products), percentage);
+    if (products.length > 0) {
+      return this.iva(this.subtotalFromProductArray(products), percentage);
+    } else {
+      return 0;
+    }
   }
 
   public static totalIVAFromProductArray(products: any[], percentage: number) {
-    return this.subtotalFromProductArray(products) + this.ivaFromProducts(products, percentage);
+    if (products.length > 0) {
+      return this.subtotalFromProductArray(products) + this.ivaFromProducts(products, percentage);
+    } else {
+      return 0;
+    }
   }
 
-  public static subtotalFromProductArray(products: any[]) {
+  public static subtotalFromProductArray(products: QuotationItem[]) {
     if (products.length > 0) {
-      return products.map((product) => (product.price * product.amount)).reduce((a, b) => a + b);
+      return products.map((product) => (product.price * product.ammount)).reduce((a, b) => a + b);
     } else {
       return 0;
     }

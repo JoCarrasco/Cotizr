@@ -23,8 +23,13 @@ export class SettingsComponent implements OnInit {
     AppStorage.set(StorageKey.OfflineModeSettings, this.offlineMode);
     if (this.offlineMode === true) {
       this.action.load('Descargando Productos');
-      AppStorage.set(StorageKey.OfflineProducts, await this.api.getProducts());
-      this.action.stop();
+      const products = (await this.api.getProducts()).products;
+      if (products) {
+        AppStorage.set(StorageKey.OfflineProducts, products);
+        this.action.stop();
+      } else {
+        this.action.error('No se pudo descargar la lista de productos', 555);
+      }
     }
   }
 }

@@ -10,7 +10,6 @@ import {
   StorageKey,
   ErrorType,
   ErrorMetadata,
-  ResponseStatus,
 } from 'src/app/shared';
 
 @Injectable({
@@ -31,10 +30,12 @@ export class AuthService {
     if (this.hasSession()) {
       DevEnv.print(`initFastAuth: There's a session.`);
       this.tokenAuthentication(this.getSession().token);
+
       this.action.stop();
     } else {
       this.action.stop();
       DevEnv.print(`initFastAuth: There's no session, exit.`);
+      this.router.navigate(['login']);
     }
   }
 
@@ -67,24 +68,28 @@ export class AuthService {
   public async tokenAuthentication(token: string) {
     if (this.hasSession()) {
       DevEnv.print(`tokenAuthentication(): Token Authentication Init...`);
-      await this.api.checkToken(token).catch(async (e) => {
-        if (e.status === 401 && e.type === 0) {
-          const session = this.getSession();
+      this.api.checkToken(token).catch(async (e) => {
+        if (e.status === 401) {
+          const session = AppStorage.get(StorageKey.Session);
           this.action.load('Extendiendo Session');
           DevEnv.print(`tokenAuthentication(): Token has expired, creating a new one.`);
-          const newToken = await this.api.getNewAuthToken(session.user.id, session.token, session.user.type);
-
-          session.token = newToken;
-          AppStorage.set(StorageKey.Session, session);
-          if (newToken) {
-            if (await this.api.checkToken(newToken)) {
-              this.action.stop();
-              DevEnv.print(`tokenAuthentication(): Token Authentication Status: OK,', 'Finishing Token Authentication.`);
-            } else {
-              this.action.error('La session no pudo ser extendida', ResponseStatus.BadServerResponse);
-            }
+          if (e.type === 0) {
+            await this.api.getNewAuthToken(session.user.id, session.token, session.user.type).then((newToken) => {
+              if (newToken) {
+                session.token = newToken;
+                AppStorage.set(StorageKey.Session, session);
+                window.location.reload();
+              }
+            }).catch(newTokenError => {
+              if (newTokenError.status === 401) {
+                AppStorage.remove(StorageKey.Session);
+                window.location.reload();
+              }
+            });
           }
         }
+      }).then((token) => {
+
       });
     }
   }
@@ -113,19 +118,28 @@ export class AuthService {
     if (authObject.user_type) {
       DevEnv.print(`login(): Login as a ${authObject.user_type}`);
       DevEnv.print(`login(): Connecting to Prestashop ${authObject.user_type} db...`);
-      const validUser = await this.api.authenticate(authObject);
-      if (validUser) {
-        this.action.stop();
-        DevEnv.print(`login(): Connected!!`);
-        DevEnv.print(`login(): You've been checked!!`);
-        const authObj = { token: validUser.token, user: { username: validUser.username, id: validUser.id, type: authObject.user_type } };
-        this.initSession(authObject.user_type, authObj);
-        this.action.stop();
-      } else {
-        this.action.stop();
-        this.isAuthenticating = false;
-        this.throwError(ErrorType.WrongAuth);
-      }
+      await this.api.authenticate(authObject).then((res) => {
+        if (res) {
+          this.action.stop();
+          DevEnv.print(`login(): Connected!!`);
+          DevEnv.print(`login(): You've been checked!!`);
+          const name = `${res.firstname} ${res.lastname}`.split('"').join('');
+          const authObj = { token: res.token, user: { name: name, id: res.id, type: authObject.user_type } };
+          this.initSession(authObject.user_type, authObj);
+          this.action.stop();
+        }
+      }).catch((e) => {
+        if (e.status === 400) {
+          this.action.error('Has ingresado un usario incorrecto', e.status);
+        }
+      });
+    }
+  }
+
+  public getToken(): string {
+    const session = AppStorage.get(StorageKey.Session);
+    if (session.token) {
+      return session.token;
     }
   }
 
@@ -143,29 +157,16 @@ export class AuthService {
     this.action.load('Registrandote en el sistema');
     this.api.createUser(registerObject).then((user) => {
       if (user) {
-        console.log(user);
         this.action.stop();
       }
     }).catch(e => {
-      console.error(e);
       this.action.error(e.message, e.status);
     });
   }
 
   private async createAccount(user) {
-    // user.metadata = { registerDate: new Date(), username: user.name };
-    // const newUser = await this.api.createUser(this.generateCotizrUserXML(user));
-    // DevEnv.print(`createAccount(): Registering Account ${newUser}`);
-  }
 
-  // private generateCotizrUserXML(user): string {
-  //   return Generate.psXML({
-  //     id_customer: user.id,
-  //     password: Md5.hashStr(PrestashopInfo.cookieKey + user.password),
-  //     address: user.address,
-  //     metadata: JSON.parse(user.metadata)
-  //   }, APIResource.CotizrUser);
-  // }
+  }
 
   public async logOut() {
     if (this.hasSession()) {

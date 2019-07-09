@@ -1,4 +1,6 @@
+
 export const PrestashopInfo = {
+  shopAPI: 'https://officenet.net.ve/api/',
   IVA: 16,
   endpoint: 'https://officenet.net.ve/cotizaya',
   searchLimit: 25,

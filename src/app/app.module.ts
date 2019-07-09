@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './routing/app-routing.module';
 import { AppComponent } from './app.component';
@@ -13,8 +13,6 @@ import { ToastComponent } from './components/shared/toast/toast.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { PanelComponent } from './components/panel/panel.component';
 import { GenerateComponent } from './components/generate/generate.component';
-import { GenerateProductsComponent } from './components/generate/children/generate-products/generate-products.component';
-import { GenerateDataComponent } from './components/generate/children/generate-data/generate-data.component';
 import { UserQuotationsComponent } from './pages/user-quotations/user-quotations.component';
 import { UserComponent } from './pages/user/user.component';
 import { SearchQuotationsComponent } from './components/search-quotations/search-quotations.component';
@@ -27,6 +25,9 @@ import { environment } from '../environments/environment';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { QuotationDetailComponent } from './pages/quotation-detail/quotation-detail.component';
 import { QuotationDataFormComponent } from './components/shared/quotation-data-form/quotation-data-form.component';
+import { QuotationComponent } from './components/quotation/quotation.component';
+import { EditionDropdownComponent } from './components/edition-dropdown/edition-dropdown.component';
+import { ListItemComponent } from './components/list/list-item/list-item.component';
 
 @NgModule({
   declarations: [
@@ -41,8 +42,6 @@ import { QuotationDataFormComponent } from './components/shared/quotation-data-f
     RegisterComponent,
     PanelComponent,
     GenerateComponent,
-    GenerateProductsComponent,
-    GenerateDataComponent,
     UserQuotationsComponent,
     UserComponent,
     SearchQuotationsComponent,
@@ -51,6 +50,9 @@ import { QuotationDataFormComponent } from './components/shared/quotation-data-f
     SettingsComponent,
     QuotationDetailComponent,
     QuotationDataFormComponent,
+    QuotationComponent,
+    EditionDropdownComponent,
+    ListItemComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,10 +61,17 @@ import { QuotationDataFormComponent } from './components/shared/quotation-data-f
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
+
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     // ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
-  providers: [],
+  providers: [
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: TokenInterceptor,
+    //   multi: true
+    // }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

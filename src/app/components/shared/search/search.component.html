@@ -1,13 +1,47 @@
+<app-loading></app-loading>
 <div class="searchbar">
   <input type="text" placeholder="Buscar por ID o palabra clave" #query (keyup)="handleKeyUp($event, query.value)"><i
     class="fas fa-search" (click)="searchProduct(query)"></i>
   <button type="submit" style="display:none">hidden submit</button>
 </div>
-<app-loading *ngIf="isSearching"></app-loading>
+<span *ngIf="!searchResult.length" class="font-small text-center mt-2">Realiza una búsqueda para agregar productos a la
+  cotización</span>
 <div class="list" *ngIf="searchResult">
-  <div class="item" *ngFor="let item of searchResult">
+  <div class="list-item small" *ngFor="let item of searchResult">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="img-frame">
+          <div [style.background-image]="getProductImg(item.id_product)" class="img">
+            <div class="img-amount" *ngIf="quotation.checkExistence(item) || quotation.checkAmount(item) != 0">
+              <span>{{ quotation.checkAmount(item) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <p class="name">{{ item.name }}</p>
+        <p class="price">{{ item.price | price }} Bs</p>
+        <div class="d-flex">
+
+          <!-- <div class="cart-operator ml-3">
+            <i class="fas fa-plus" (click)="quotation.quotateItem(item)"></i>
+            <i class="fas fa-minus" (click)="quotation.changeAmount(item, 1)"
+              [ngClass]="{'disabled': !quotation.checkExistence(item)}"></i>
+          </div> -->
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="cart-operator ml-3">
+          <i class="fas fa-plus" (click)="quotation.quotateItem(item)"></i>
+          <i class="fas fa-minus" (click)="quotation.changeAmount(item, 1)"
+            [ngClass]="{'disabled': !quotation.checkExistence(item)}"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="item" *ngFor="let item of searchResult">
     <div class="item-img">
-      <div [style.background-image]="getProductImg(item)" class="img">
+      <div [style.background-image]="'url(' + getProductImg(item.id_product)+ ')'" class="img">
         <div class="amount" *ngIf="quotation.checkExistence(item) || quotation.checkAmount(item) != 0">
           <span>{{ quotation.checkAmount(item) }}</span>
         </div>
@@ -15,10 +49,10 @@
     </div>
     <div class="item-info">
       <span class="name">{{ item.name }}</span>
-      <span class="price">{{ item.price | price }} Bs.S</span>
+      <span class="price">{{ item.price | price }} Bs</span>
     </div>
     <div class="buttons">
       <i class="far fa-plus-square" (click)="quotation.quotateItem(item)"></i>
     </div>
-  </div>
+  </div> -->
 </div>
