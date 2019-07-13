@@ -34,25 +34,28 @@ export class SearchQuotationsComponent implements OnInit {
   }
 
   async requestOffset(offset: number) {
-    const today = new Date().valueOf;
     this.action.load('Descargando lista de cotizaciones');
     this.isLoading = true;
     this.all = [];
     this.quotations = [];
     this.lastOffset = offset;
-    const quotationObj = (await this.api.getQuotations(offset))
+    const quotationObj = (await this.api.getQuotations(offset));
     const quotations = quotationObj.quotations;
     this.quotationQuantities = quotationObj.total;
     if (quotations) {
       this.action.stop();
-      this.all = quotations;
-      this.quotations = quotations;
-      this.quotations = quotations.map((x) => {
+      quotations.map((x) => {
         if (x.items.length) {
+          x.status = parseInt(x.status, 0);
           x.items = JSON.parse(x.items);
         }
         return x;
       });
+      this.all = quotations;
+      this.pendent = quotations.filter((x) => x.status === QuotationState.Pendent);
+      this.approved = quotations.filter((x) => x.status === QuotationState.Approved);
+      this.rejected = quotations.filter((x) => x.status === QuotationState.Rejected);
+      this.quotations = quotations;
 
       if (offset === 0) {
         this.displayPages(10);
@@ -85,21 +88,12 @@ export class SearchQuotationsComponent implements OnInit {
     return QuotationStateInfo[value].message;
   }
 
-  private filterQuotations(arr): void {
-    this.all = arr;
-    this.pendent = arr.filter((item) => item.products.state.stateStatus === QuotationState.Pendent);
-    this.rejected = arr.filter((item) => item.products.state.stateStatus === QuotationState.Rejected);
-    this.approved = arr.filter((item) => item.products.state.stateStatus === QuotationState.Approved);
-    this.isFullyLoaded = true;
-  }
-
   nextPaginationDisplay(currentPaginationDisplay) {
     const index = this.paginationSets.indexOf(this.currentPaginationDisplay);
     this.currentPaginationDisplay = this.paginationSets[index + 1];
   }
 
   handleChange(e, value) {
-    console.log(e, value);
     if (e.keyCode === 13) {
       this.searchQuotation(value);
     }
@@ -108,6 +102,12 @@ export class SearchQuotationsComponent implements OnInit {
   async getQuotationsByStatus(status: QuotationState) {
     if (status === 100) {
       this.requestOffset(25);
+    } else if (status === QuotationState.Pendent) {
+      this.quotations = this.pendent;
+    } else if (status === QuotationState.Approved) {
+      this.quotations = this.approved;
+    } else if (status === QuotationState.Rejected) {
+      this.quotations = this.rejected;
     }
   }
 

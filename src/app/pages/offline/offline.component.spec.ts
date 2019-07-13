@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { QuotationDataFormComponent } from './quotation-data-form.component';
+import { OfflineComponent } from './offline.component';
 
-describe('QuotationDataFormComponent', () => {
-  let component: QuotationDataFormComponent;
-  let fixture: ComponentFixture<QuotationDataFormComponent>;
+describe('OfflineComponent', () => {
+  let component: OfflineComponent;
+  let fixture: ComponentFixture<OfflineComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ QuotationDataFormComponent ]
+      declarations: [ OfflineComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(QuotationDataFormComponent);
+    fixture = TestBed.createComponent(OfflineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

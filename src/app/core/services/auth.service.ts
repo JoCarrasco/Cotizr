@@ -73,7 +73,8 @@ export class AuthService {
           const session = AppStorage.get(StorageKey.Session);
           this.action.load('Extendiendo Session');
           DevEnv.print(`tokenAuthentication(): Token has expired, creating a new one.`);
-          if (e.type === 0) {
+
+          if (e.type === 1) {
             await this.api.getNewAuthToken(session.user.id, session.token, session.user.type).then((newToken) => {
               if (newToken) {
                 session.token = newToken;
@@ -86,9 +87,12 @@ export class AuthService {
                 window.location.reload();
               }
             });
+          } else if (e.type === 0) {
+            AppStorage.remove(StorageKey.Session);
+            window.location.reload();
           }
         }
-      }).then((token) => {
+      }).then(() => {
 
       });
     }

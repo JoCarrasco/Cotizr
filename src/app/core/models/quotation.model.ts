@@ -24,6 +24,7 @@ export class Quotation extends BaseEntityClass<Quotation> {
 
   toDBObject(isCreation: boolean = false) {
     const calculatedItems: QuotationItem[] = this.items.map((x) => {
+      x.name = x.name.replace(/["']/g, '');
       x.total = x.ammount * x.price;
       return x;
     });

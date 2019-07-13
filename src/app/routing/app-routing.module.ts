@@ -9,12 +9,14 @@ import { SearchQuotationsComponent } from '../components/search-quotations/searc
 import { GenerateComponent } from '../components/generate/generate.component';
 import { SettingsComponent } from '../pages/settings/settings.component';
 import { QuotationDetailComponent } from '../pages/quotation-detail/quotation-detail.component';
+import { OfflineComponent } from '../pages/offline/offline.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
   { path: 'register', component: RegisterComponent, canActivate: [LoginGuard] },
+  { path: 'offline', component: OfflineComponent },
   {
     path: 'panel', component: PanelComponent, canActivate: [AuthGuard],
     children: [

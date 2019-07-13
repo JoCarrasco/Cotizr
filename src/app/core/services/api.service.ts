@@ -48,6 +48,11 @@ export class ApiService {
           }
         }
       }).catch((error) => {
+        if (error.status === 0) {
+          window.location.reload();
+          rej();
+        }
+
         const errorResult = {
           status: error.status,
           message: error.error.response,
@@ -99,9 +104,12 @@ export class ApiService {
     return await this.get(APIResource.Quotations, undefined, undefined, [{ key: 'id', value: id }, { key: 'admin', value: 'true' }]);
   }
 
-  public async getUserQuotations(id: string, limit?) {
+  public async getUserQuotations(limit?, offset?) {
     const session = AppStorage.get(StorageKey.Session);
     let fields: any[] = limit ? [{ key: 'limit', value: limit }] : [];
+    if (offset) {
+      fields.push({ key: 'offset', value: offset });
+    }
     fields = fields.concat([{ key: 'id_customer', value: session.user.id }, { key: 'user_type', value: session.type }]);
     return await this.get(APIResource.Quotations, undefined, undefined, fields);
   }

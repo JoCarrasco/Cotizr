@@ -20,7 +20,6 @@ export class ToastComponent implements OnInit {
 
   ngOnInit() {
     this.actionService.action.subscribe((action) => {
-      console.log(action);
       this.backgroundColor = action ? ToastAction[action.type]['background-color'] : undefined;
       this.color = action ? ToastAction[action.type].color : undefined;
       this.message = action ? action.message : undefined;

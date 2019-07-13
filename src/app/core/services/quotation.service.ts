@@ -118,24 +118,27 @@ export class QuotationService {
       { title: 'Total', dataKey: 'total' }
     ];
 
+    const subtotal = Format.formatNumberWithSeparators(BusinessMath.subtotalFromProductArray(items));
+    const iva = Format.formatNumberWithSeparators(BusinessMath.ivaFromProducts(items, 16));
+    const total = Format.formatNumberWithSeparators(BusinessMath.totalIVAFromProductArray(items, 16));
     const quotationInfo = [
       {
         name: '',
         amount: '',
         price: 'SUBTOTAL:',
-        total: Format.formatNumberWithSeparators(BusinessMath.subtotalFromProductArray(items)) + ' Bs'
+        total: subtotal ? subtotal : 0 + ' Bs'
       },
       {
         name: '',
         amount: '',
         price: 'IVA(16%):',
-        total: Format.formatNumberWithSeparators(BusinessMath.ivaFromProducts(items, 16)) + ' Bs'
+        total: iva ? iva : 0 + ' Bs'
       },
       {
         name: '',
         amount: '',
         price: 'TOTAL:',
-        total: Format.formatNumberWithSeparators(BusinessMath.totalIVAFromProductArray(items, 16)) + ' Bs'
+        total: total ? total : 0 + ' Bs'
       }
     ];
 

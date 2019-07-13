@@ -30,6 +30,16 @@
   }
 }
 
+.btn {
+  &.btn-and-icon {
+    display: flex;
+    align-items: center;
+    i {
+      margin-right: 1rem;
+    }
+  }
+}
+
 .btn-material {
   border-radius: 2px;
   box-shadow: $shadow-2;

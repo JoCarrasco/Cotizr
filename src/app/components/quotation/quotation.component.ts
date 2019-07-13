@@ -1,8 +1,18 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { BusinessMath, PrestashopInfo, AppStorage, StorageKey, QuotationState, DevEnv, ResponseStatus, AuthType } from 'src/app/shared';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import {
+  BusinessMath,
+  PrestashopInfo,
+  AppStorage,
+  StorageKey,
+  QuotationState,
+  DevEnv,
+  ResponseStatus,
+  AuthType,
+  QuotationStateInfo
+} from 'src/app/shared';
 import { QuotationItem, ApiService, QuotationService, Quotation, ActionService } from 'src/app/core';
-import { QuotationDataFormComponent } from '../shared/quotation-data-form/quotation-data-form.component';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-quotation',
@@ -10,17 +20,33 @@ import { ActivatedRoute, Router } from '@angular/router';
   styleUrls: ['./quotation.component.scss']
 })
 export class QuotationComponent implements OnInit {
-  isDrawerActive = false;
-  isSearchScreenActive = false;
-
-
+  isFormValid = false;
   refQuotation: Quotation = new Quotation();
   businessMath = BusinessMath;
   quotationItems: QuotationItem[] = [];
+  onlyProductsQuotation = false;
 
+  statusButtons = [
+    { name: QuotationStateInfo[QuotationState.Pendent].message, status: QuotationState.Pendent },
+    { name: QuotationStateInfo[QuotationState.Delivered].message, status: QuotationState.Delivered },
+    { name: QuotationStateInfo[QuotationState.Rejected].message, status: QuotationState.Rejected },
+    { name: QuotationStateInfo[QuotationState.Approved].message, status: QuotationState.Approved },
+  ];
+
+  public quotation: FormGroup = new FormGroup({
+    receiver: new FormControl(' ', Validators.required),
+    company_name: new FormControl(' ', Validators.required),
+    company_address: new FormControl(' ', Validators.required),
+    identification: new FormControl(' ', Validators.required),
+    phone_number: new FormControl(' ', Validators.required),
+    status: new FormControl(0)
+  });
+
+  @Output() quotationValue: EventEmitter<any> = new EventEmitter();
+  @Output() valid: EventEmitter<boolean> = new EventEmitter();
+  @Input() disableAll: boolean;
 
   @Input() type: 'quotation' | 'generate';
-  @ViewChild('quotationForm') quotationForm: QuotationDataFormComponent;
 
   constructor(private router: Router,
     private route: ActivatedRoute,
@@ -31,14 +57,14 @@ export class QuotationComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.quotationForm.setValue(new Quotation());
     this.quotationService.quotationItems = [];
     if (this.type === 'quotation') {
       this.route.params.subscribe(async (params) => {
         const id = params['id'];
         const req = AppStorage.get(StorageKey.Session).type === AuthType.Employee ?
           this.api.getQuotationAsAdmin(id) : this.api.getQuotation(id);
-        const quotationReq = await req.then((quotation) => {
+        this.action.load('Cargando cotizacion');
+        await req.then((quotation) => {
           if (quotation !== '"{}"') {
             quotation.items = JSON.parse(quotation.items).map((x) => {
               x.total = x.price * x.ammount;
@@ -48,24 +74,21 @@ export class QuotationComponent implements OnInit {
             const model = new Quotation(quotation);
             this.quotationService.quotationItems = quotation.items;
             setTimeout(() => {
-              this.quotationForm.setValue(model);
+              this.action.stop();
+              this.quotation.patchValue(model);
             }, 0);
           } else {
+            this.action.stop();
             this.action.error('Lo siento no estas autorizado para ver esta cotizacion', 400);
           }
         }).catch((e) => {
+          this.action.stop();
           if (e.status === ResponseStatus.WrongAuth) {
 
           }
         });
       });
     }
-  }
-
-  switchSearchScreen(boolValue) {
-    document.body.style.overflowY = boolValue ? 'hidden' : 'scroll';
-    this.isSearchScreenActive = boolValue;
-    this.isDrawerActive = boolValue;
   }
 
   isOnline(): boolean {
@@ -92,14 +115,19 @@ export class QuotationComponent implements OnInit {
     return quotation;
   }
 
-  async createQuotation(downloadOnly?) {
+  async createQuotation(downloadOnly?: boolean) {
     this.action.load('Creando cotizacion');
     DevEnv.print('createQuotation(): Creating Quotation');
-    const quotation = this.createQuotationObject(this.quotationForm.getValue(), this.quotationService.quotationItems);
+    Object.keys(this.quotation.value).forEach(key => {
+      if (!this.quotation.value[key] && key !== 'status') {
+        this.quotation.value[key] = ' ';
+      }
+    });
+    const quotation = this.createQuotationObject(this.quotation.value, this.quotationService.quotationItems);
     if (!downloadOnly) {
       const isQuotationCreated = await this.api.createQuotation(quotation.toDBObject(true));
       if (isQuotationCreated) {
-        const newQuotation = (await this.api.getUserQuotations(AppStorage.get(StorageKey.Session).user.id, 1)).quotations[0];
+        const newQuotation = (await this.api.getUserQuotations(1)).quotations[0];
         if (newQuotation) {
           newQuotation.items = JSON.parse(newQuotation.items).map((x) => {
             x.total = x.price * x.ammount;
@@ -108,7 +136,7 @@ export class QuotationComponent implements OnInit {
           newQuotation.user = JSON.parse(newQuotation.user);
           this.download(new Quotation(newQuotation));
           this.action.stop();
-          this.router.navigate(['../panel/quotation-detail', newQuotation.id_cotizr_quotation]);
+          this.reset();
         } else {
           this.action.stop();
         }
@@ -125,12 +153,12 @@ export class QuotationComponent implements OnInit {
   async updateQuotation() {
     const session = AppStorage.get(StorageKey.Session);
     this.action.load('Actualizando Cotizacion');
-    const quotation = this.createQuotationObject(this.quotationForm.getValue(), this.quotationService.quotationItems);
+    const quotation = this.createQuotationObject(this.quotation.value, this.quotationService.quotationItems);
     quotation.id_cotizr_quotation = this.refQuotation.id_cotizr_quotation;
     const isUpdate = await this.api.updateQuotation(quotation.toDBObject());
     if (isUpdate) {
       this.action.success('Cotizacion Actualizada');
-      const quotationObj = (await this.api.getUserQuotations(AppStorage.get(StorageKey.Session).user.id, 1));
+      const quotationObj = (await this.api.getUserQuotations(1));
       if (quotationObj) {
         const updatedQuotation = quotationObj.quotations[0];
         updatedQuotation.items = JSON.parse(updatedQuotation.items);
@@ -162,5 +190,17 @@ export class QuotationComponent implements OnInit {
 
   getProductImg(id): any {
     return `url(https://officenet.net.ve/cotizaya/images?id=${id})`;
+  }
+
+  reset() {
+    this.quotationService.quotationItems = [];
+    this.quotation.setValue(new Quotation({
+      receiver: '',
+      company_name: '',
+      company_address: '',
+      identification: '',
+      phone_number: '',
+      status: QuotationState.Pendent
+    }));
   }
 }

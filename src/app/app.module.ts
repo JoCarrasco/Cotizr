@@ -24,10 +24,10 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { QuotationDetailComponent } from './pages/quotation-detail/quotation-detail.component';
-import { QuotationDataFormComponent } from './components/shared/quotation-data-form/quotation-data-form.component';
 import { QuotationComponent } from './components/quotation/quotation.component';
 import { EditionDropdownComponent } from './components/edition-dropdown/edition-dropdown.component';
 import { ListItemComponent } from './components/list/list-item/list-item.component';
+import { OfflineComponent } from './pages/offline/offline.component';
 
 @NgModule({
   declarations: [
@@ -49,10 +49,10 @@ import { ListItemComponent } from './components/list/list-item/list-item.compone
     SearchComponent,
     SettingsComponent,
     QuotationDetailComponent,
-    QuotationDataFormComponent,
     QuotationComponent,
     EditionDropdownComponent,
     ListItemComponent,
+    OfflineComponent,
   ],
   imports: [
     BrowserModule,

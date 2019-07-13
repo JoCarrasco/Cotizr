@@ -30,6 +30,7 @@
   min-height: 150px;
   background-color: $blue;
   color: #fff;
+  padding: 1rem 0;
 }
 
 
@@ -146,4 +147,17 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.amount {
+  border-radius: 100%;
+  color: #1b1b1b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .amount-modifier {
+    max-width: 43px;
+    border:1px solid #bababa;
+    border-radius: 25px;
+  }
 }

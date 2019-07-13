@@ -2,7 +2,7 @@
 <div class="searchbar">
   <input type="text" placeholder="Buscar por ID o palabra clave" #query (keyup)="handleKeyUp($event, query.value)"><i
     class="fas fa-search" (click)="searchProduct(query)"></i>
-  <button type="submit" style="display:none">hidden submit</button>
+  <button type="submit" style="display:none"></button>
 </div>
 <span *ngIf="!searchResult.length" class="font-small text-center mt-2">Realiza una búsqueda para agregar productos a la
   cotización</span>
@@ -22,7 +22,6 @@
         <p class="name">{{ item.name }}</p>
         <p class="price">{{ item.price | price }} Bs</p>
         <div class="d-flex">
-
           <!-- <div class="cart-operator ml-3">
             <i class="fas fa-plus" (click)="quotation.quotateItem(item)"></i>
             <i class="fas fa-minus" (click)="quotation.changeAmount(item, 1)"

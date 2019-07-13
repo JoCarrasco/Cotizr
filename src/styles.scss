@@ -117,18 +117,7 @@ body {
       font-size: 0.8em;
     }
   }
-  .amount {
-    border-radius: 100%;
-    color: #1b1b1b;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .amount-modifier {
-      max-width: 80px;
-      border:1px solid #bababa;
-      border-radius: 25px;
-    }
-  }
+  
   .cart-operator {
     border-radius: 25px;
     width: fit-content;

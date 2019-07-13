@@ -40,7 +40,6 @@ export class API {
     if (httpObj.resource !== APIResource.Authentication) {
       // queryStr += `&token=${AppStorage.get(StorageKey.Session).token}`;
     }
-    console.log(`${httpObj.resource}: ${queryStr}`);
     return queryStr;
   }
 

@@ -10,18 +10,9 @@ export class ActionService {
 
   constructor() { }
 
-  // load() {
-  //   this.updateAction(ActionType.Loading, 'Cargando por favor espere.');
-  // }
-
   error(errorMessage: string, status: number) {
     this.updateAction(ActionType.Error, `ERROR: ${status}: ${ResponseStatusInfo[status].message}\n${errorMessage}`);
   }
-
-
-  // download() {
-  //   this.updateAction(ActionType.w);
-  // }
 
   load(message: string) {
     this.updateAction(ActionType.Loading, `${message}. Por favor espere`);

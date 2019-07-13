@@ -16,7 +16,7 @@ export class SearchComponent implements OnInit {
   constructor(private api: ApiService, public quotation: QuotationService, private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
-    this.searchProduct('papel');
+
   }
 
   handleKeyUp(e, value) {
