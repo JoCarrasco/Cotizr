@@ -19,17 +19,21 @@ export class AuthGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     return new Observable<boolean>((observer) => {
-      this.api.checkToken(AppStorage.get(StorageKey.Session).token).then((token => {
-        console.log(token);
-        if (token) {
-          observer.next(true);
-          observer.complete();
-        } else {
-          this.router.navigate(['login']);
-          observer.next(false);
-          observer.complete();
-        }
-      }));
+      const session = AppStorage.get(StorageKey.Session);
+      if (session) {
+        this.api.checkToken(session.token).then((token => {
+          if (token) {
+            observer.next(true);
+            observer.complete();
+          } else {
+            this.router.navigate(['login']);
+            observer.next(false);
+            observer.complete();
+          }
+        }));
+      } else {
+        observer.next(false);
+      }
     });
   }
 }

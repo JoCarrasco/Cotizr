@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ApiService, QuotationService } from 'src/app/core';
 import { PrestashopInfo } from 'src/app/shared';
+import { DomSanitizer, SafeUrl, SafeStyle } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-search',
@@ -12,9 +13,10 @@ export class SearchComponent implements OnInit {
   searchResult = [];
   @Input() arr: any[];
 
-  constructor(private api: ApiService, public quotation: QuotationService) { }
+  constructor(private api: ApiService, public quotation: QuotationService, private sanitizer: DomSanitizer) { }
 
   ngOnInit() {
+
   }
 
   handleKeyUp(e, value) {
@@ -23,8 +25,8 @@ export class SearchComponent implements OnInit {
     }
   }
 
-  getProductImg(item): string {
-    return `url(${PrestashopInfo.shopAPI}images/products/${item.id_product}/${item.id_default_image}/medium_default?ws_key=${PrestashopInfo.wsKey})`;
+  getProductImg(id): any {
+    return `url(https://officenet.net.ve/cotizaya/images?id=${id})`;
   }
 
   async searchProduct(query) {
@@ -32,8 +34,8 @@ export class SearchComponent implements OnInit {
       this.searchResult = [];
       this.isSearching = true;
       const products = await this.api.searchProduct(query);
-      this.isSearching = false;
       if (products) {
+        this.isSearching = false;
         this.searchResult = products.map(product => {
           return this.quotation.toQuotationItem(product);
         });

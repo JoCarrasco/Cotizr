@@ -18,7 +18,6 @@ import { ApiService } from './api.service';
 })
 export class QuotationService {
   public quotationItems: QuotationItem[] = [];
-
   constructor(private router: Router, private api: ApiService) { }
 
   public async updateQuotation(quotation: Quotation) {
@@ -29,7 +28,7 @@ export class QuotationService {
   }
 
   public checkAmount(item: QuotationItem): number {
-    return this.checkExistence(item) ? this.getFromQuotation(item).amount : 0;
+    return this.checkExistence(item) ? this.getFromQuotation(item).ammount : 0;
   }
 
   private getFromQuotation(item: QuotationItem): QuotationItem {
@@ -37,7 +36,7 @@ export class QuotationService {
   }
 
   private addToQuotation(item: QuotationItem): void {
-    this.quotationItems.push(new QuotationItem(Object.assign(item, { amount: 1 })));
+    this.quotationItems.push(new QuotationItem(Object.assign(item, { ammount: 1 })));
   }
 
   public removeFromQuotation(item: QuotationItem): void {
@@ -52,10 +51,10 @@ export class QuotationService {
   public changeAmount(item, operation: CartOperation): void {
     const targetItem = this.getFromQuotation(this.toQuotationItem(item));
     if (operation === CartOperation.Add) {
-      targetItem.amount += 1;
+      targetItem.ammount += 1;
     } else if (operation === CartOperation.Rest) {
-      if (targetItem.amount > 1) {
-        targetItem.amount -= 1;
+      if (targetItem.ammount > 1) {
+        targetItem.ammount -= 1;
       } else {
         this.removeFromQuotation(targetItem);
       }
@@ -79,7 +78,7 @@ export class QuotationService {
   }
 
   public toQuotationItem(item): QuotationItem {
-    return new QuotationItem(Object.assign(item, { amount: 0 }));
+    return new QuotationItem(Object.assign(item, { ammount: 0 }));
   }
 
   public async createQuotation(quotation: Quotation, downloadAfterCreation = true) {
@@ -94,68 +93,58 @@ export class QuotationService {
         user_type: AppStorage.get(StorageKey.Session).user.type,
         status: QuotationState.Pendent,
         id_customer: parseInt(AppStorage.get(StorageKey.Session).user.id, 0),
-        // username: AppStorage.get(StorageKey.Session).user.username,
         items: JSON.stringify(quotation.items),
       }));
 
-      // const body = Generate.psXML(newQuotation, APIResource.Quotations);
       DevEnv.print(`createQuotation(): Creation and checked, succesfull.`);
       DevEnv.print(`createQuotation(): Doing http request.`);
 
-      // const newQuotation = await this.api
       const newQuotation = await this.api.createQuotation(body);
-      console.log(newQuotation);
       this.generatePDF(body);
     } else {
       return true;
     }
-    // if (newQuotation) {
-    //   this.router.navigate(['../quotation-detail', newQuotation.id]);
-    // }
-    // if (newQuotation) {
-    //   DevEnv.print(`createQuotation(): Quotation created.`);
-    //   if (downloadAfterCreation) {
-    //     PDF.download(PDF.createPdfFromQuotation(newQuotation), newQuotation.date_created);
-    //   }
-    // }
   }
 
   /*PDF*/
   public generatePDF(quotation: Quotation): void {
-    const copyItems = Object.assign({}, quotation.items);
-    const items = Object.keys(copyItems).map((key) => copyItems[key]);
+    quotation = new Quotation(quotation);
+    const items = JSON.parse(JSON.stringify(quotation.items));
     const columns = [
       { title: 'ID', dataKey: 'id_product' },
       { title: 'Descripción', dataKey: 'name' },
-      { title: 'Cantidad', dataKey: 'amount' },
+      { title: 'Cantidad', dataKey: 'ammount' },
       { title: 'Precio', dataKey: 'price' },
       { title: 'Total', dataKey: 'total' }
     ];
 
+    const subtotal = Format.formatNumberWithSeparators(BusinessMath.subtotalFromProductArray(items));
+    const iva = Format.formatNumberWithSeparators(BusinessMath.ivaFromProducts(items, 16));
+    const total = Format.formatNumberWithSeparators(BusinessMath.totalIVAFromProductArray(items, 16));
     const quotationInfo = [
       {
         name: '',
         amount: '',
         price: 'SUBTOTAL:',
-        total: Format.formatNumberWithSeparators(BusinessMath.subtotalFromProductArray(items)) + ' Bs. S'
+        total: subtotal ? subtotal : 0 + ' Bs'
       },
       {
         name: '',
         amount: '',
         price: 'IVA(16%):',
-        total: Format.formatNumberWithSeparators(BusinessMath.ivaFromProducts(items, 16)) + ' Bs.S'
+        total: iva ? iva : 0 + ' Bs'
       },
       {
         name: '',
         amount: '',
         price: 'TOTAL:',
-        total: Format.formatNumberWithSeparators(BusinessMath.totalIVAFromProductArray(items, 16)) + ' Bs. S'
+        total: total ? total : 0 + ' Bs'
       }
     ];
 
     items.map((x: any) => {
-      x.total = Format.formatNumberWithSeparators(x.amount * x.price) + 'Bs. S';
-      x.price = Format.formatNumberWithSeparators(x.price) + 'Bs. S';
+      x.total = Format.formatNumberWithSeparators(x.ammount * x.price) + ' Bs';
+      x.price = Format.formatNumberWithSeparators(x.price) + ' Bs';
       return x;
     });
 
@@ -193,7 +182,7 @@ export class QuotationService {
     doc.addImage(PrestashopInfo.logo, 'PNG', 40 + 215, 60, 100, 22.6);
     doc.setFontSize(12);
     doc.setFontType('bold');
-    doc.text(40 + 15, 70, `Cotización Nro: ON-${quotation.id}`);
+    doc.text(40 + 15, 70, `Cotización Nro: ON-${quotation.id_cotizr_quotation}`);
     doc.setFontSize(9);
     doc.setFontType('normal');
     doc.text(40 + 15, 82, 'Fecha: ' + quotation.date_created);
@@ -257,68 +246,64 @@ export class QuotationService {
     doc.save('Cotización - Productos de Officenet' + ' ' + quotation.date_created + '.pdf');
   }
 
-  getProductImg(item): string {
-    return `url(${PrestashopInfo.shopAPI}images/products/${item.id}/${item.id_default_image}/medium_default?ws_key=${PrestashopInfo.wsKey})`;
-  }
-
   private getTotalPageRows(number): Array<any> {
     const resultArr = [];
     let itemArray = [];
     if (number > 1) {
       itemArray = [
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' }, /*26*/
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' }, /*26*/
       ];
     } else {
       itemArray = [
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' },
-        { name: '', amount: '', price: '', total: '' }/*20*/
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
+        { name: '', ammount: '', price: '', total: '' },
       ];
     }
 

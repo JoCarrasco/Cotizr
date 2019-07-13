@@ -21,3 +21,7 @@
   color: $darker-blue;
   padding: 1rem;
 }
+
+.cursor-pointer {
+  @include cursorPointer();
+}

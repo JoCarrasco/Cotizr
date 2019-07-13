@@ -22,7 +22,7 @@
     color: $white;
     font-weight: bolder;
      @include laptop {
-      font-size: $medium-font;
+      font-size: $small-medium-font;
     }
     @include ldesktop {
       font-size: $big-font;

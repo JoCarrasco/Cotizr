@@ -8,19 +8,15 @@ import { AuthType } from '../shared';
   providedIn: 'root'
 })
 export class AdminGuard implements CanActivate {
-  constructor(private auth: AuthService, private router: Router) {
-
-  }
+  constructor(private auth: AuthService, private router: Router) { }
 
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
     if (this.auth.session.type === AuthType.Employee) {
-      console.log('is employee');
       return true;
     } else {
       this.router.navigate(['login']);
-      console.log('Is not employee');
       return false;
     }
   }

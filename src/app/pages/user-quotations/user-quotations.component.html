@@ -14,91 +14,49 @@
 <div class="container">
 	<div class="col-sm-12">
 		<table class="table" *ngIf="userQuotations.length > 0">
-		  <caption>Mis Cotizaciones</caption>
-		  <thead>
-		    <tr>
-		    	<th scope="col">Acciones</th>
-		      <th scope="col">#</th>
-		      <th scope="col">ID de Cotización.</th>
-		      <th scope="col">Cantidad de Prod.</th>
-		      <th scope="col">Emails</th>
-		      <th scope="col">Total</th>
+			<thead>
+				<tr>
+					<th scope="col">Acciones</th>
+					<th scope="col">#</th>
+					<th scope="col">ID de Cotización.</th>
+					<th scope="col">Cantidad de Prod.</th>
+					<th scope="col">Total</th>
 					<th scope="col">Estado</th>
-		    </tr>
-		  </thead>
-		  <tbody>
-		    <tr *ngFor="let quotation of userQuotations">
-		    	<th scope="row">
-		    		<i class="far fa-eye" data-toggle="modal" data-target="#previewUserQuotations" (click)="displayQuotation(quotation)"></i>
-		        <i class="fas fa-download" (click)="quotation.generatePDF(quotation)"></i>
-		    	</th>
-		      <th scope="row">{{ userQuotations.indexOf(quotation) + 1  }}</th>
-		      <td>{{ quotation.id }}</td>
-		      <td>{{ quotation.products.items.length }}</td>
-		      <td>{{ quotation.products.metadata ? quotation.products.metadata.userInfo.email : 'Email No Proporcionado' }}</td>
-		      <td>{{ quotationService.getTotal(quotation.products.items, true) | shortDecimal | price }} Bs.S</td>
-		      <td>{{ quotation.products.state ? fromNumberToStatus(quotation.products.state.stateStatus) : 'Pendiente' }}</td>
-		    </tr>
-		  </tbody>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let quotation of userQuotations">
+					<th scope="row d-flex align-items-center">
+						<a [routerLink]="[ '../quotation-detail', quotation.id_cotizr_quotation ]"><i class="far fa-eye"></i></a>
+						<i class="fas fa-download ml-2 cursor-pointer" (click)="quotationService.generatePDF(quotation)"></i>
+					</th>
+					<th scope="row">{{ userQuotations.indexOf(quotation) + 1  }}</th>
+					<td>{{ quotation.id_cotizr_quotation }}</td>
+					<td>{{ quotation.items.length }}</td>
+					<td>{{ quotation.subtotal }} Bs</td>
+					<!-- <td>{{ quotationService.getTotal(quotation.products.items, true)  | number }} Bs</td> -->
+					<!-- <td>{{ quotation.prostate ? fromNumberToStatus(quotation.products.state.stateStatus) : 'Pendiente' }}
+					</td> -->
+				</tr>
+			</tbody>
 		</table>
-		<div class="log" *ngIf="userQuotations.length < 1">
+		<div *ngIf="isLoading && !isFullyLoaded" class="text-center">
+			<span>Cargando tus cotizaciones...</span>
+		</div>
+		<div class="log" *ngIf="userQuotations.length < 1 && isFullyLoaded">
 			<p>No tienes ninguna cotización.</p>
 		</div>
-	</div>	
-</div>
-<div class="modal fade" id="previewUserQuotations" tabindex="-1" role="dialog" aria-labelledby="previewUserQuotationsTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="previewUserQuotationsTitle">Previsualización</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-	     	<!-- <table class="table" *ngIf="userQuotationState.isModalActive">
-				  <caption>Cotizaciones</caption>
-				  <thead>
-				    <tr>
-				      <th scope="col">#</th>
-				      <th scope="col">Nombre de Producto</th>
-				      <th scope="col">Cantidad</th>
-				      <th scope="col">Precio</th>
-				      <th scope="col">Total</th>
-				    </tr>
-				  </thead>
-				  <tbody>
-				    <tr *ngFor="let product of userQuotationState.quotationPreview.products.items">
-				    	<th scope="row">{{ userQuotationState.quotationPreview.products.items.indexOf(product) + 1  }}</th>
-				      <th scope="row">{{ product.name  }}</th>
-				      <td>{{ product.ammount }}</td>
-				      <td class="white-nowrap">{{ product.price | shortDecimal | price }}</td>
-				      <td class="white-nowrap">{{ product.price * product.ammount | shortDecimal | price }} Bs.S</td>
-				    </tr>
-				    <tr>
-				    	<th scope="row"></th>
-				      <th scope="row"></th>
-				      <td></td>
-				      <td>SubTotal</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items,false) | shortDecimal | price }} Bs.S</td>
-				    </tr>
-				    <tr>
-				    	<th scope="row"></th>
-				      <th scope="row"></th>
-				      <td></td>
-				      <td>IVA(16%)</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) - quotation.getTotalArray(userQuotationState.quotationPreview.products.items, false) | shortDecimal | price }} Bs.S</td>
-				    </tr>
-				    <tr>
-				    	<th scope="row"></th>
-				      <th scope="row"></th>
-				      <td></td>
-				      <td>Total</td>
-				      <td class="white-nowrap">{{ quotation.getTotalArray(userQuotationState.quotationPreview.products.items, true) | price }} Bs.S</td>
-				    </tr>
-				  </tbody>
-				</table> -->
-      </div>
-    </div>
-  </div>
+	</div>
+	<div class="d-flex justify-content-center align-items-center" *ngIf="isFullyLoaded">
+		<button class="btn btn-primary mr-4" [disabled]="paginationSets.indexOf(currentPaginationDisplay) === 0"
+			(click)="previousPaginationDisplay(currentPaginationDisplay)">Mas Recientes</button>
+		<div class="pagination-group">
+			<span *ngFor="let page of currentPaginationDisplay" class="pagination"
+				[ngClass]="{'selected': page.offset === lastOffset}"
+				(click)="requestOffset(page.offset)">{{ page.number }}</span>
+		</div>
+		<button class="btn btn-primary ml-4"
+			[disabled]="paginationSets.indexOf(currentPaginationDisplay) === paginationSets.length - 1"
+			(click)="nextPaginationDisplay(currentPaginationDisplay)">Mas Antiguas</button>
+	</div>
 </div>

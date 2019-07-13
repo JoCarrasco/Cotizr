@@ -1,13 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~normalize.css/normalize.css';
-@import '~bootstrap/scss/bootstrap.scss';
-@import './styles/core.scss';
-@import './styles/utils.scss';
-@import './styles/component-styles.scss';
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,900,900i');
+@import "~normalize.css/normalize.css";
+@import "~bootstrap/scss/bootstrap.scss";
+@import "./styles/core.scss";
+@import "./styles/utils.scss";
+@import "./styles/component-styles.scss";
+@import url("https://fonts.googleapis.com/css?family=Roboto:400,500,900,900i");
 
 body {
-  font-family: 'Roboto', 'Helvetica', sans-serif;
+  font-family: "Roboto", "Helvetica", sans-serif;
 }
 
 /*LOGIN AND AUTH COMPONENTS*/
@@ -25,13 +25,12 @@ body {
       width: 100%;
       justify-content: space-between;
       span {
-        transition: all .2s;
+        transition: all 0.2s;
         font-weight: bolder;
         color: $gray;
         @include cursorPointer();
         &.active {
           color: $blue;
-          
         }
       }
     }
@@ -39,7 +38,7 @@ body {
   .other {
     text-align: center;
     .forgot {
-      color:$dark-blue;
+      color: $dark-blue;
       font-size: 14px;
       span {
         font-weight: bolder;
@@ -50,12 +49,91 @@ body {
 }
 
 .featured-img {
-  background-image: url('./assets/img/components/bg_1.jpg');
+  background-image: url("./assets/img/components/bg_1.jpg");
   background-position: center;
-  background-size:cover;
+  background-size: cover;
   background-color: $blue;
   background-blend-mode: soft-light;
   @include laptop {
     min-height: 100vh;
+  }
+}
+
+/*MOVE TO COMPONENT*/
+.list-item {
+  padding: 1rem;
+  border: 1px solid #e7e7e7;
+  border-radius: 15px;
+  margin: 0.5rem 0;
+  background: #fff;
+  &.small {
+    padding: 0.5rem;
+    .img-frame {
+      transform: scale(0.5);
+    }
+  }
+  .img-frame {
+    padding: 3px;
+    background-color: #4ba1ff;
+    border-radius: 100%;
+    box-shadow: 0 -2px 26px rgba(0, 0, 0, 0.15), 0 6px 29px rgba(0, 0, 0, 0.12);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .img {
+    height: 80px;
+    width: 80px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 100%;
+    .img-amount {
+      height: 30px;
+      width: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 100%;
+      position: absolute;
+      margin-top: -16px;
+      font-size: 1em;
+      background: $green;
+      font-size: 2em;
+      color: white;
+    }
+  }
+  .name {
+    font-size: 0.8em;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  .price {
+    font-size: 1.2em;
+    font-weight: bold;
+    &.no-margin {
+      margin-bottom: 0;
+    }
+    &.small {
+      font-size: 0.8em;
+    }
+  }
+  
+  .cart-operator {
+    border-radius: 25px;
+    width: fit-content;
+    padding: 0.65rem;
+    display: flex;
+    height: 77px;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #1b1b1b;
+    flex-direction: column;
+    i:hover {
+      cursor: pointer;
+    }
+    i.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
   }
 }

@@ -27,6 +27,7 @@ export enum APIResource {
   Quotations = 'quotations',
   Products = 'products',
   Authentication = 'auth',
+  Images = 'images',
   Registration = 'register'
 }
 
@@ -91,7 +92,8 @@ export const ErrorMetadata = {
 export enum ResponseStatus {
   NotFound = 404,
   BadServerResponse = 1200,
-  Unauthorized = 401
+  Unauthorized = 401,
+  WrongAuth = 400
 }
 
 export const ResponseStatusInfo = {
@@ -103,22 +105,23 @@ export const ResponseStatusInfo = {
   },
   [ResponseStatus.BadServerResponse]: {
     message: 'El servidor no retorna recursos correctamente'
+  },
+  [ResponseStatus.WrongAuth]: {
+    message: 'Usuario incorrecto'
   }
 };
 
 export enum QuotationState {
   Pendent = 0,
-  Readed,
-  Complete,
+  Delivered,
   Approved,
   Rejected
 }
 
 export const QuotationStateInfo = {
   [QuotationState.Pendent]: { message: 'Pendiente' },
-  [QuotationState.Readed]: { message: 'Leido' },
-  [QuotationState.Complete]: { message: 'Completado' },
-  [QuotationState.Approved]: { message: 'Aprobado' },
+  [QuotationState.Delivered]: { message: 'Pagada' },
+  [QuotationState.Approved]: { message: 'Aprobada' },
   [QuotationState.Rejected]: { message: 'Rechazada' }
 };
 

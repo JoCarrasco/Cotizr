@@ -1,0 +1,14 @@
+@import '../../../styles/colors';
+
+.dropdown-header {
+  padding: 0.8rem 1rem;
+  border-radius: 5px;
+  &.blue {
+    background-color: $blue;
+    color: #fff;
+  }
+  &.white {
+    border: 1px solid #1b1b1b;
+    background-color: #fff;
+  }
+}

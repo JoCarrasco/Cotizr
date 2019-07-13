@@ -1,10 +1,10 @@
-@import '../../../styles/colors';
-@import '../../../styles/core';
-@import '../../../styles/material';
+@import "../../../styles/colors";
+@import "../../../styles/core";
+@import "../../../styles/material";
 
 .user-header {
   background: $dark-blue;
-  color:$white;
+  color: $white;
 }
 
 .user-info {
@@ -16,6 +16,26 @@
   .details {
     display: flex;
     flex-direction: column;
-    margin:0 0 0 1rem;
+    margin: 0 0 0 1rem;
+  }
+}
+.pagination-group {
+  display: flex;
+  min-width: 360px;
+  justify-content: space-around;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  max-height: 18px;
+  &:hover {
+    cursor: pointer;
+  }
+  &.selected {
+    background-color: #647eff;
+    color: #fff;
+    border-radius: 100%;
   }
 }

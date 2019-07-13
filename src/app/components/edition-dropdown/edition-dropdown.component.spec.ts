@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GenerateProductsComponent } from './generate-products.component';
+import { EditionDropdownComponent } from './edition-dropdown.component';
 
-describe('GenerateProductsComponent', () => {
-  let component: GenerateProductsComponent;
-  let fixture: ComponentFixture<GenerateProductsComponent>;
+describe('EditionDropdownComponent', () => {
+  let component: EditionDropdownComponent;
+  let fixture: ComponentFixture<EditionDropdownComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GenerateProductsComponent ]
+      declarations: [ EditionDropdownComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(GenerateProductsComponent);
+    fixture = TestBed.createComponent(EditionDropdownComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

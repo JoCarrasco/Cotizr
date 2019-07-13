@@ -1,19 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { API, CRUDAction, APIResource, AuthType, AppStorage, StorageKey, ResponseStatus } from 'src/app/shared';
+import { API, CRUDAction, APIResource, AuthType, AppStorage, StorageKey, ResponseStatus, DevEnv } from 'src/app/shared';
 import { Observable } from 'rxjs';
-import { Quotation } from '..';
+import { Quotation, Session } from '..';
 import { HttpGeneratorObject } from '../types';
 import { ActionService } from './action.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   onlineStatus: Observable<any>;
-  constructor(private http: HttpClient, private actionService: ActionService) { }
+  constructor(private http: HttpClient, private actionService: ActionService, private router: Router) { }
 
-  init() { }
+  init() {
+
+  }
 
   private async httpAction(crudAction: CRUDAction, httpObj: HttpGeneratorObject, body?: any) {
     let req: Observable<any>;
@@ -21,7 +24,9 @@ export class ApiService {
     let headers = new HttpHeaders({ 'Content-Type': 'application/xml' });
     if (session) {
       if (httpObj.resource !== APIResource.AuthToken && httpObj.resource !== APIResource.Registration) {
-        headers = new HttpHeaders({ 'Content-Type': 'application/xml', 'Authorization': session.token ? session.token : '' });
+        headers = new HttpHeaders({
+          'Content-Type': 'application/xml', 'Authorization': session.token ? session.token : ''
+        });
       }
     }
     if (crudAction === CRUDAction.Create || crudAction === CRUDAction.Update) {
@@ -38,48 +43,25 @@ export class ApiService {
     return new Promise((res, rej) => {
       req.toPromise().then((data) => {
         if (data) {
-          const dataResource = data.response;
-          if (dataResource) {
-            res(dataResource);
+          if (data.response) {
+            res(data.response);
           }
         }
-      }).catch(async (error) => {
+      }).catch((error) => {
+        if (error.status === 0) {
+          window.location.reload();
+          rej();
+        }
+
         const errorResult = {
-          status: error.error.status,
-          message: error.error.response.message,
+          status: error.status,
+          message: error.error.response,
           type: error.error.response.type
         };
 
-        this.actionService.error(errorResult.message, errorResult.status);
-        this.handleError(errorResult.status, errorResult.type, req);
-        if (errorResult.status === ResponseStatus.Unauthorized) {
-          const session = AppStorage.get(StorageKey.Session);
-          const newToken = await this.getNewAuthToken(session.user.id, session.token, session.type);
-          if (newToken) {
-            session.token = newToken;
-            AppStorage.set(StorageKey.Session, session);
-            res((await req.toPromise()).response);
-          }
-        } else {
-          rej(errorResult);
-        }
+        rej(errorResult);
       });
     });
-  }
-
-  private async handleError(status: number, type: number, req: Observable<any>) {
-    // if (status === 401) {
-    //   if (type === 0) {
-    //     const session = AppStorage.get(StorageKey.Session);
-    //     const newToken = await this.getNewAuthToken(session.user.id, session.token, session.type);
-    //     if (newToken) {
-    //       session.token = newToken;
-    //       AppStorage.set(StorageKey.Session, session);
-
-    //     }
-    //     console.log('Token expirado');
-    //   }
-    // }
   }
 
   private async retry(errorStatus) {
@@ -100,6 +82,10 @@ export class ApiService {
     return await this.httpAction(CRUDAction.Create, { resource }, body);
   }
 
+  private async update(resource: APIResource, body: any): Promise<any> {
+    return await this.httpAction(CRUDAction.Update, { resource }, body);
+  }
+
   public async getProducts() {
     return await this.get(APIResource.Products);
   }
@@ -110,20 +96,22 @@ export class ApiService {
 
   public async getQuotation(id) {
     const session = AppStorage.get(StorageKey.Session);
-    const fields: any[] = [{ key: 'id', value: id }];
-    session.type === AuthType.Employee ? fields.push({ key: 'admin', value: 'true' }) : fields.concat([{
-      key: 'id_customer',
-      value: session.user.id
-    }, {
-      key: 'user_type',
-      value: session.type
-    }]);
-
+    const fields: any[] = [{ key: 'id', value: id }, { key: 'id_customer', value: session.user.id }, { key: 'user_type', value: session.type }];
     return await this.get(APIResource.Quotations, id, undefined, fields);
   }
 
-  public async getUserQuotations(userID: string) {
-    // return (await this.get(APIResource.Quotations, [{ key: 'id_customer', value: userID }]).toPromise()).cotizr_quotations;
+  public async getQuotationAsAdmin(id) {
+    return await this.get(APIResource.Quotations, undefined, undefined, [{ key: 'id', value: id }, { key: 'admin', value: 'true' }]);
+  }
+
+  public async getUserQuotations(limit?, offset?) {
+    const session = AppStorage.get(StorageKey.Session);
+    let fields: any[] = limit ? [{ key: 'limit', value: limit }] : [];
+    if (offset) {
+      fields.push({ key: 'offset', value: offset });
+    }
+    fields = fields.concat([{ key: 'id_customer', value: session.user.id }, { key: 'user_type', value: session.type }]);
+    return await this.get(APIResource.Quotations, undefined, undefined, fields);
   }
   // CREATE METHODS
   public async createUser(registerObject: { email: string, password: string, user_type: AuthType, username: string }) {
@@ -133,6 +121,14 @@ export class ApiService {
       user_type: registerObject.user_type,
       username: registerObject.username
     });
+  }
+
+  public async getProductImg(id: string) {
+    return await this.get(APIResource.Images, undefined, undefined, [{ key: 'id', value: id }]);
+  }
+
+  public async extendSession(session: Session) {
+    return this.getNewAuthToken(session.user.id, session.token, session.type);
   }
 
   public async createQuotation(quotation): Promise<Quotation> {
@@ -167,8 +163,10 @@ export class ApiService {
 
   public async checkToken(token: string) {
     if (navigator.onLine) {
+      DevEnv.print('checkToken(): Checking token online');
       return (await this.get(APIResource.AuthToken, undefined, undefined, [{ key: 'value', value: token }]));
     } else {
+      DevEnv.print('checkToken(): Checking token offline');
       if (AppStorage.get(StorageKey.OfflineModeSettings) && AppStorage.get(StorageKey.OfflineProducts).length > 0) {
         return true;
       } else {
@@ -179,7 +177,7 @@ export class ApiService {
 
   // Update Quotation
   public async updateQuotation(quotation) {
-    return await this.write(APIResource.Quotations, quotation);
+    return await this.update(APIResource.Quotations, quotation);
   }
 
   /*===== Search Functionalities =====*/
@@ -203,5 +201,9 @@ export class ApiService {
   // Search Quotation
   public async searchQuotation(id: string): Promise<any> {
     return await this.get(APIResource.Quotations, undefined, [{ key: 'id', value: id }]);
+  }
+
+  public ejectAuthorization() {
+    this.router.navigate(['login']);
   }
 }

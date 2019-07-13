@@ -11,11 +11,17 @@
           "/*.css",
           "/*.js"
         ]
+      },
+      "cacheConfig": {
+        "maxSize": 100,
+        "maxAge": "1h",
+        "strategy": "freshness"
       }
-    }, {
+    },
+    {
       "name": "assets",
       "installMode": "lazy",
-      "updateMode": "prefetch",
+      "updateMode": "lazy",
       "resources": {
         "files": [
           "/assets/**"

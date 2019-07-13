@@ -1,0 +1,127 @@
+<div class="container">
+  <div class="section-header">
+    <h4 class="header-title" *ngIf="type === 'generate'">NUEVA COTIZACIÓN</h4>
+    <h4 class="header-title" *ngIf="type === 'quotation'">COTIZACIÓN # {{ refQuotation.id_cotizr_quotation }}</h4>
+  </div>
+</div>
+<div class="quotation-header">
+  <div class="container">
+    <form [formGroup]="quotation">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-group">
+            <label>Nombre de Representante</label>
+            <input type="text" class="form-control" name="receiver" formControlName="receiver">
+          </div>
+          <div class="form-group">
+            <label>Nombre de La Empresa</label>
+            <input type="text" class="form-control" name="company_name" formControlName="company_name">
+          </div>
+          <div class="form-group">
+            <label>Direccion de la Empresa</label>
+            <input type="text" class="form-control" name="company_address" formControlName="company_address">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-group">
+            <label>Identificacion</label>
+            <input type="text" class="form-control" name="identification" formControlName="identification"
+              placeholder="Ej: V47124953">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" class="form-control" name="phone_number" formControlName="phone_number"
+              placeholder="Ej: 04121325966">
+          </div>
+          <div class="form-group">
+            <label>Estado</label>
+            <select class="form-control" name="status" formControlName="status">
+              <option *ngFor="let btn of statusButtons" [ngValue]="btn.status">{{ btn.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <button class="btn btn-primary btn-and-icon btn-block text-center"
+            (click)="type === 'generate' ? createQuotation() : updateQuotation()">
+            <i class="fas fa-check " *ngIf="type === 'generate'"></i>
+            <span *ngIf="type === 'generate'">Generar y Guardar Cotización</span>
+            <i class="far fa-save" *ngIf="type === 'quotation'"></i>
+            <span *ngIf="type === 'quotation'">Guardar Cotización</span>
+          </button>
+          <button class="btn btn-primary btn-and-icon btn-block text-center"
+            (click)="type === 'generate' ? createQuotation(true) : download(refQuotation)">
+            <i class="fas fa-download"></i>
+            <span>Descargar Cotización</span>
+          </button>
+          <div class="form-check mt-2">
+            <input type="checkbox" class="form-check-input" (click)="handleCheckboxEvent(onlyProducts)" #onlyProducts>
+            <label class="form-check-label">Cotización Sin Formulario</label>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <app-search></app-search>
+    </div>
+    <div class="col-md-8">
+      <div class="product-list">
+        <div class="row">
+          <div class="col-md-1">
+            <span>ID</span>
+          </div>
+          <div class="col-md-4">
+            <span>Nombre</span>
+          </div>
+          <div class="col-md-2">
+            <span>Precio</span>
+          </div>
+          <div class="col-md-2">
+            <span>Cantidad</span>
+          </div>
+          <div class="col-md-3 text-right">
+            <span>Subtotal</span>
+          </div>
+        </div>
+        <div class="row mt-4" *ngFor="let item of quotationService.quotationItems">
+          <div class="col-md-1">
+            {{ item.id_product }}
+          </div>
+          <div class="col-md-4">
+            {{ item.name }}
+          </div>
+          <div class="col-md-2">
+            {{ item.price | price }}
+          </div>
+          <div class="col-md-2 d-flex align-items-center">
+            <div class="amount">
+              <input type="number" class="amount-modifier" [(ngModel)]="item.ammount">
+            </div>
+            <i class="fas fa-trash-alt text-danger ml-2"></i>
+          </div>
+          <div class="col-md-3 text-right">
+            {{ item.price * item.ammount | price }} Bs
+          </div>
+        </div>
+        <div class="row d-flex justify-content-center" *ngIf="!quotationService.quotationItems.length">
+          <p class="mt-4">Esta cotización no tiene productos</p>
+        </div>
+        <div class="row d-flex justify-content-end" *ngIf="quotationService.quotationItems.length">
+          <div class="col-md-2">Subtotal: </div>
+          <div class="col-md-3 text-right">{{ subtotal() | price }} Bs</div>
+        </div>
+        <div class="row d-flex justify-content-end" *ngIf="quotationService.quotationItems.length">
+          <div class="col-md-2">IVA: </div>
+          <div class="col-md-3 text-right">{{ iva() | price }} Bs</div>
+        </div>
+        <div class="row d-flex justify-content-end" *ngIf="quotationService.quotationItems.length">
+          <div class="col-md-2">Total: </div>
+          <div class="col-md-3 text-right">{{ total() | price }} Bs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
