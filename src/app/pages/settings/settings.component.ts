@@ -9,6 +9,7 @@ import { ApiService, ActionService } from 'src/app/core';
 })
 export class SettingsComponent implements OnInit {
   offlineMode = false;
+  e
   constructor(private api: ApiService, private action: ActionService) {
     if (AppStorage.has(StorageKey.OfflineModeSettings)) {
       this.offlineMode = AppStorage.get(StorageKey.OfflineModeSettings);
@@ -19,11 +20,11 @@ export class SettingsComponent implements OnInit {
   }
 
   async handleOfflineMode() {
-    console.log(this.offlineMode);
     AppStorage.set(StorageKey.OfflineModeSettings, this.offlineMode);
     if (this.offlineMode === true) {
       this.action.load('Descargando Productos');
-      const products = (await this.api.getProducts()).products;
+      const productsQuantity = (await this.api.getProducts(1)).total;
+      const products = (await this.api.getProducts(productsQuantity)).products;
       if (products) {
         AppStorage.set(StorageKey.OfflineProducts, products);
         this.action.stop();

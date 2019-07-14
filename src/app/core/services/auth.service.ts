@@ -168,10 +168,6 @@ export class AuthService {
     });
   }
 
-  private async createAccount(user) {
-
-  }
-
   public async logOut() {
     if (this.hasSession()) {
       // this.action.logout();

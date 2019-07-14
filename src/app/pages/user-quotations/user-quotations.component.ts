@@ -30,7 +30,6 @@ export class UserQuotationsComponent implements OnInit {
     const quotationObj = (await this.api.getUserQuotations(undefined, offset));
     const quotations = quotationObj.quotations;
     this.quotationQuantities = quotationObj.total;
-    console.log(this.quotationQuantities);
     if (quotations) {
       this.action.stop();
       quotations.map((x) => {
@@ -58,7 +57,6 @@ export class UserQuotationsComponent implements OnInit {
     let paginationGroupCounter = groupNumber;
     const arr = [];
     const pageNumber = Math.ceil(this.quotationQuantities / 25);
-    console.log(pageNumber);
     for (let i = 1; i <= pageNumber; i++) {
       arr.push({
         number: i,
@@ -82,8 +80,6 @@ export class UserQuotationsComponent implements OnInit {
         }
       }
     });
-
-    console.log(this.pagination, this.paginationSets);
   }
 
   previousPaginationDisplay(currentPaginationDisplay) {
