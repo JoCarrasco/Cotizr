@@ -86,8 +86,8 @@ export class ApiService {
     return await this.httpAction(CRUDAction.Update, { resource }, body);
   }
 
-  public async getProducts() {
-    return await this.get(APIResource.Products);
+  public async getProducts(limit?: number) {
+    return await this.get(APIResource.Products, undefined, undefined, [{ key: 'limit', value: limit ? limit : 25 }]);
   }
 
   public async getQuotations(offset: number = 25) {
@@ -189,7 +189,7 @@ export class ApiService {
         undefined, [{ key: 'q', value: query }])).products;
     } else {
       return new Promise((res, rej) => {
-        res(AppStorage.get(StorageKey.OfflineProducts).products.filter((x) => {
+        res(AppStorage.get(StorageKey.OfflineProducts).filter((x) => {
           if (x.name.toLowerCase().includes(query.toLowerCase())) {
             return x;
           }
